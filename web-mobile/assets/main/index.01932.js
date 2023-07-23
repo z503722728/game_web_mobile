@@ -547,10 +547,10 @@ System.register("chunks:///_virtual/TwoDots_move_time.ts", ['./rollupPluginModLo
   };
 });
 
-System.register("chunks:///_virtual/TwoDots_panel_item.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './fairygui.mjs', './drongo-gui.mjs', './GameData.ts'], function (exports) {
+System.register("chunks:///_virtual/TwoDots_panel_item.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './fairygui.mjs', './drongo-gui.mjs', './GameData.ts', './TwoDots_panel.ts'], function (exports) {
   'use strict';
 
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, cclegacy, Vec2, Graphics, Node, UIPackage, GRoot, GComponent, vbind, VBindType, vm, DotType, GameData;
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, cclegacy, Vec2, Graphics, Node, UIPackage, GComponent, vbind, VBindType, vm, DotType, GameData, TwoDots_panel;
 
   return {
     setters: [function (module) {
@@ -565,7 +565,6 @@ System.register("chunks:///_virtual/TwoDots_panel_item.ts", ['./rollupPluginModL
       Node = module.Node;
     }, function (module) {
       UIPackage = module.UIPackage;
-      GRoot = module.GRoot;
       GComponent = module.GComponent;
     }, function (module) {
       vbind = module.vbind;
@@ -574,6 +573,8 @@ System.register("chunks:///_virtual/TwoDots_panel_item.ts", ['./rollupPluginModL
     }, function (module) {
       DotType = module.DotType;
       GameData = module.GameData;
+    }, function (module) {
+      TwoDots_panel = module.default;
     }],
     execute: function () {
       var _dec, _dec2, _class, _class2, _descriptor, _descriptor2, _class3;
@@ -655,8 +656,8 @@ System.register("chunks:///_virtual/TwoDots_panel_item.ts", ['./rollupPluginModL
           var conf = GameData.mapConf;
           var col = conf.col;
           var row = conf.row;
-          vec.x = (this.pos.x - col / 2 + 0.5) * spaceX + GRoot.inst.width / 2;
-          vec.y = (this.pos.y - row / 2 + 0.5) * spaceY + GRoot.inst.width / 2;
+          vec.x = (this.pos.x - col / 2 + 0.5) * spaceX + TwoDots_panel.width / 2;
+          vec.y = (this.pos.y - row / 2 + 0.5) * spaceY + TwoDots_panel.height / 2;
           return vec;
         };
 
@@ -836,6 +837,8 @@ System.register("chunks:///_virtual/TwoDots_panel.ts", ['./rollupPluginModLoBabe
           this.on(Event.TOUCH_BEGIN, this.onTouchBegin, this);
           this.on(Event.TOUCH_MOVE, this.onTouchMove, this);
           this.on(Event.TOUCH_END, this.onTouchEnd, this);
+          TwoDots_panel.width = this.width;
+          TwoDots_panel.height = this.height;
         };
 
         _proto.onTouchBegin = function onTouchBegin(evt) {
@@ -1181,7 +1184,7 @@ System.register("chunks:///_virtual/TwoDots_panel.ts", ['./rollupPluginModLoBabe
         }]);
 
         return TwoDots_panel;
-      }(GComponent), _class2.URL = "ui://jguk0yckqs5dn", _class2.Dependencies = ["TwoDots"], _class2)) || _class);
+      }(GComponent), _class2.URL = "ui://jguk0yckqs5dn", _class2.Dependencies = ["TwoDots"], _class2.width = 0, _class2.height = 0, _class2)) || _class);
       /**点的直径径 */
 
       var diameter = 34;
