@@ -1,1 +1,0 @@
-[1,0,0,[["cc.JsonAsset",["_name","json"],1]],[[0,0,1,3]],[[0,"Level",{"initialize":{"interval":1,"delay":3,"count":15},"schedule":{"interval":20,"repeat":-1,"delay":5,"count":[1,5]},"increase":{"maxHp":1.2}}]],0,0,[],[],[]]
