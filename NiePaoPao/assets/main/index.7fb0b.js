@@ -596,6 +596,9 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
           // 控制设置按钮仅在调试模式显示
           this.UI.m_setting.visible = DEBUG;
 
+          // 控制速度调试文本仅在调试模式显示
+          this.UI.m_testNum.visible = DEBUG;
+
           // 绑定调试面板打开事件
           {
             this.UI.m_setting.onClick(function () {
@@ -988,9 +991,14 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
         }
 
         /**
-         * 每帧检测连击超时
+         * 每帧检测连击超时 + 更新调试信息
          */;
         _proto.update = function update(dt) {
+          // 更新调试信息（DEBUG 模式）
+          if (this.UI.m_testNum.visible) {
+            var speed = this.getComboSpeed();
+            this.UI.m_testNum.text = "\u901F\u5EA6: " + speed.toFixed(1) + "/\u79D2";
+          }
           if (!this.comboActive) return;
           var now = Timer.currentTime;
           var timeDiff = now - this.lastClickTime;
@@ -1305,6 +1313,7 @@ System.register("chunks:///_virtual/Game_GamePage.ts", ['./rollupPluginModLoBabe
           _this.m_Go = void 0;
           _this.m_tishiImg = void 0;
           _this.m_setting = void 0;
+          _this.m_testNum = void 0;
           return _this;
         }
         Game_GamePage.createInstance = function createInstance() {
@@ -1320,6 +1329,7 @@ System.register("chunks:///_virtual/Game_GamePage.ts", ['./rollupPluginModLoBabe
           this.m_Go = this.getChild("Go");
           this.m_tishiImg = this.getChild("tishiImg");
           this.m_setting = this.getChild("setting");
+          this.m_testNum = this.getChild("testNum");
         };
         return Game_GamePage;
       }(GComponent), _class2.URL = "ui://6gpz43l1e0zek", _class2.Dependencies = ["Game"], _class2)) || _class);
