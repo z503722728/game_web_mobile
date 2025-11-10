@@ -893,13 +893,23 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
 
         /**
          * 检查触摸点是否在泡泡范围内
+         * 注意：泡泡轴心在中心，bubble.x/y 是中心点坐标
          */;
         _proto.isTouchInBubble = function isTouchInBubble(touchX, touchY, bubble) {
-          var bubbleX = bubble.x;
-          var bubbleY = bubble.y;
+          // 泡泡中心点坐标
+          var bubbleCenterX = bubble.x;
+          var bubbleCenterY = bubble.y;
           var bubbleWidth = bubble.width;
           var bubbleHeight = bubble.height;
-          return touchX >= bubbleX && touchX <= bubbleX + bubbleWidth && touchY >= bubbleY && touchY <= bubbleY + bubbleHeight;
+
+          // 计算泡泡的边界（轴心在中心）
+          var left = bubbleCenterX - bubbleWidth / 2;
+          var right = bubbleCenterX + bubbleWidth / 2;
+          var top = bubbleCenterY - bubbleHeight / 2;
+          var bottom = bubbleCenterY + bubbleHeight / 2;
+
+          // 检查触摸点是否在边界内
+          return touchX >= left && touchX <= right && touchY >= top && touchY <= bottom;
         }
 
         /**
