@@ -19,6 +19,7 @@
         "b3517da2-4501-41f6-a243-4fe108744d11",
         "b3517da2-4501-41f6-a243-4fe108744d11@6c48a",
         "c0552647-e74b-4dd9-b7ee-971ea730d840",
+        "c46a1b3e-cb4d-4739-921e-774c71c2db8f",
         "c91b83dc-8cb1-4aae-9e0d-b02aeefe0519",
         "ed3fbfea-138a-4bd2-83fe-fed7da5930ae",
         "ed3fbfea-138a-4bd2-83fe-fed7da5930ae@6c48a",
@@ -110,6 +111,11 @@
             "UI/Game_e0zet",
             "cc.AudioClip",
             1
+        ],
+        "c46a1b3e-cb4d-4739-921e-774c71c2db8f": [
+            "UI/Game_ti8vz",
+            "cc.AudioClip",
+            1
         ]
     },
     "scenes": {},
@@ -148,6 +154,8 @@
             "a2533",
             "c0552647-e74b-4dd9-b7ee-971ea730d840",
             "77397",
+            "c46a1b3e-cb4d-4739-921e-774c71c2db8f",
+            "ccc82",
             "c91b83dc-8cb1-4aae-9e0d-b02aeefe0519",
             "c4027",
             "ed3fbfea-138a-4bd2-83fe-fed7da5930ae",
@@ -157,7 +165,7 @@
         ],
         "native": [
             "19aeec59-98e4-4e76-8df5-98af2d5d23cd",
-            "6f280",
+            "05b3f",
             "20c10b22-8df4-4d12-98f3-e72d872763eb",
             "3f313",
             "36c0c6ec-16a0-4916-ba4d-6ecd681ef0ff",
@@ -170,6 +178,8 @@
             "65f8b",
             "b3517da2-4501-41f6-a243-4fe108744d11",
             "ed2d4",
+            "c46a1b3e-cb4d-4739-921e-774c71c2db8f",
+            "090f1",
             "ed3fbfea-138a-4bd2-83fe-fed7da5930ae",
             "fcd4a",
             "ff96d812-229e-4126-9cf0-776cb043d0da",

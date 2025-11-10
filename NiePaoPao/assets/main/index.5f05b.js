@@ -350,9 +350,11 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
           }
           _this = _GUILogicBase.call.apply(_GUILogicBase, [this].concat(args)) || this;
           _this.lastState = 0;
+          _this.isPopping = false;
           return _this;
         }
         var _proto = Game_Bubbble_Logic.prototype;
+        // 是否正在爆裂过程中
         _proto.onLoad = function onLoad() {
           // 初始化时隐藏爆炸效果
           this.UI.m_baoZha.visible = false;
@@ -370,12 +372,91 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
          * 状态变化监听
          */;
         _proto.onStateChanged = function onStateChanged() {
+          var _this2 = this;
           var currentState = this.UI.m_c1.selectedIndex;
-          // 从未戳破(0)变为戳破(1-3)时播放动画
-          if (this.lastState === 0 && currentState > 0) {
-            this.playPopAnimation();
+
+          // 从未戳破(0)变为戳破(1-3)时，先播放预备动画，再爆裂
+          if (this.lastState === 0 && currentState > 0 && !this.isPopping) {
+            this.isPopping = true;
+            var targetState = currentState;
+
+            // 立即恢复到状态0（未戳破），播放预备动画
+            this.UI.m_c1.selectedIndex = 0;
+
+            // 播放预备动画（抖动 + 放大）
+            this.playPrepareAnimation(function () {
+              // 0.5秒后切换到真正的爆炸状态
+              _this2.UI.m_c1.selectedIndex = targetState;
+              _this2.lastState = targetState;
+              _this2.playPopAnimation();
+              _this2.isPopping = false;
+            });
+            return;
           }
           this.lastState = currentState;
+        }
+
+        /**
+         * 播放预备动画（0.5秒）
+         * 效果：泡泡抖动 + 放大，为即将爆炸做准备
+         */;
+        _proto.playPrepareAnimation = function playPrepareAnimation(onComplete) {
+          var bubbleNode = this.UI.node;
+          var originalScale = bubbleNode.scale.clone();
+
+          // 停止之前的动画
+          tween(bubbleNode).stop();
+
+          // 抖动 + 放大动画（0.5秒）
+          tween(bubbleNode)
+          // 快速放大到1.1倍
+          .to(0.1, {
+            scale: new Vec3(1.1, 1.1, 1)
+          }, {
+            easing: "backOut"
+          })
+          // 左右抖动
+          .to(0.05, {
+            scale: new Vec3(1.15, 1.05, 1),
+            eulerAngles: new Vec3(0, 0, 5)
+          }, {
+            easing: "sineInOut"
+          }).to(0.05, {
+            scale: new Vec3(1.05, 1.15, 1),
+            eulerAngles: new Vec3(0, 0, -5)
+          }, {
+            easing: "sineInOut"
+          }).to(0.05, {
+            scale: new Vec3(1.15, 1.05, 1),
+            eulerAngles: new Vec3(0, 0, 5)
+          }, {
+            easing: "sineInOut"
+          }).to(0.05, {
+            scale: new Vec3(1.05, 1.15, 1),
+            eulerAngles: new Vec3(0, 0, -5)
+          }, {
+            easing: "sineInOut"
+          })
+          // 继续放大到1.2倍
+          .to(0.1, {
+            scale: new Vec3(1.2, 1.2, 1),
+            eulerAngles: new Vec3(0, 0, 0)
+          }, {
+            easing: "sineOut"
+          })
+          // 微微缩小到1.15倍
+          .to(0.1, {
+            scale: new Vec3(1.15, 1.15, 1)
+          }, {
+            easing: "sineIn"
+          })
+          // 完成后回调
+          .call(function () {
+            // 恢复原始缩放
+            bubbleNode.setScale(originalScale.x, originalScale.y, originalScale.z);
+            bubbleNode.setRotationFromEuler(0, 0, 0);
+            onComplete();
+          }).start();
         }
 
         /**
@@ -383,7 +464,7 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
          * 爆炸效果：从小放大，然后快速缩小消失
          */;
         _proto.playPopAnimation = function playPopAnimation() {
-          var _this2 = this;
+          var _this3 = this;
           // 显示爆炸图片
           this.UI.m_baoZha.visible = true;
           this.UI.m_baoZha.alpha = 1;
@@ -403,7 +484,7 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
             easing: "sineIn"
           }).call(function () {
             // 动画结束后隐藏
-            _this2.UI.m_baoZha.visible = false;
+            _this3.UI.m_baoZha.visible = false;
           }).start();
         };
         return Game_Bubbble_Logic;
@@ -706,13 +787,17 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
             for (var col = 0; col < this.COLS; col++) {
               var bubble = Game_Bubbble.createInstance();
 
-              // 计算位置（考虑 padding 和 spacing）
-              var x = this.PADDING + col * (this.bubbleWidth + this.SPACING);
-              var y = this.PADDING + row * (this.bubbleHeight + this.SPACING);
-              bubble.setPosition(x, y);
-
               // 设置气泡大小（确保显示正确）
               bubble.setSize(this.bubbleWidth, this.bubbleHeight);
+
+              // 设置轴心为中心（用于旋转和缩放动画）
+              bubble.setPivot(0.5, 0.5, true);
+
+              // 计算位置（考虑 padding 和 spacing）
+              // 因为轴心在中心，所以需要加上半个气泡的宽高
+              var x = this.PADDING + col * (this.bubbleWidth + this.SPACING) + this.bubbleWidth / 2;
+              var y = this.PADDING + row * (this.bubbleHeight + this.SPACING) + this.bubbleHeight / 2;
+              bubble.setPosition(x, y);
 
               // 添加到容器
               this.UI.m_BubbleArea.addChild(bubble);
@@ -1864,7 +1949,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
 
                   // 资源加载完毕后立即播放BGM
                   try {
-                    this.playBGM(this.node, "Game", "bgm");
+                    this.playBGM(this.node, "Game", "pop_BGM");
                     log("BGM播放成功");
                   } catch (error) {
                     console.warn("BGM播放失败:", error);
@@ -1941,13 +2026,16 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
   };
 });
 
-System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './VibrationConfig.ts'], function (exports) {
-  var _createClass, cclegacy, vibrationConfig;
+System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './VibrationConfig.ts'], function (exports) {
+  var _createClass, cclegacy, Timer, log, vibrationConfig;
   return {
     setters: [function (module) {
       _createClass = module.createClass;
     }, function (module) {
       cclegacy = module.cclegacy;
+    }, function (module) {
+      Timer = module.Timer;
+      log = module.log;
     }, function (module) {
       vibrationConfig = module.vibrationConfig;
     }],
@@ -1960,6 +2048,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
         ToyControlType["GAME_END"] = "1";
         ToyControlType["GAME_PLAYING"] = "2";
         ToyControlType["GAME_PAUSE"] = "3";
+        ToyControlType["PHONE_VIBRATE"] = "4";
         return ToyControlType;
       }(ToyControlType || {}); // 振动强度等级（按强度从高到低）
       var VibrationIntensity = /*#__PURE__*/function (VibrationIntensity) {
@@ -1972,6 +2061,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
       }(VibrationIntensity || {});
       var ToyControlInterface = exports('ToyControlInterface', /*#__PURE__*/function () {
         function ToyControlInterface() {}
+        // 上次手机震动时间戳
         /**
          * 初始化玩具控制
          */
@@ -2098,6 +2188,28 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
         /**
          * 检查是否已启用
          */;
+        /**
+         * 触发手机震动（通过 Unity 接口）
+         * 防抖处理：500ms 内的重复调用会被忽略
+         */
+        ToyControlInterface.vibratePhone = function vibratePhone() {
+          if (!this.isEnabled) return;
+          var now = Timer.currentTime;
+          var timeSinceLastVibrate = now - this.lastPhoneVibrateTime + 50;
+
+          // 如果上次震动还未结束（500ms内），忽略本次请求
+          if (timeSinceLastVibrate < this.PHONE_VIBRATE_DURATION) {
+            // console.log(`[ToyControlInterface] 震动防抖：距离上次震动 ${timeSinceLastVibrate}ms < 500ms，忽略`);
+            return;
+          }
+
+          // 记录震动时间
+          this.lastPhoneVibrateTime = now;
+
+          // 调用 Unity 接口（type=4，手机震动 500ms）
+          this.callUnityInterface(ToyControlType.PHONE_VIBRATE, VibrationIntensity.MISS);
+          log('[ToyControlInterface] 触发手机震动 500ms');
+        };
         _createClass(ToyControlInterface, null, [{
           key: "enabled",
           get: function get() {
@@ -2108,6 +2220,10 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
       }());
       ToyControlInterface.isEnabled = false;
       ToyControlInterface.currentIntensity = null;
+      // 手机震动控制
+      ToyControlInterface.PHONE_VIBRATE_DURATION = 500;
+      // 固定震动时长（毫秒）
+      ToyControlInterface.lastPhoneVibrateTime = 0;
       cclegacy._RF.pop();
     }
   };
@@ -2144,70 +2260,47 @@ System.register("chunks:///_virtual/VibrationConfig.ts", ['cc'], function (expor
   };
 });
 
-System.register("chunks:///_virtual/VibrationManager.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc'], function (exports) {
-  var _createClass, cclegacy;
+System.register("chunks:///_virtual/VibrationManager.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './ToyControlInterface.ts'], function (exports) {
+  var _createClass, cclegacy, ToyControlInterface;
   return {
     setters: [function (module) {
       _createClass = module.createClass;
     }, function (module) {
       cclegacy = module.cclegacy;
+    }, function (module) {
+      ToyControlInterface = module.ToyControlInterface;
     }],
     execute: function () {
       cclegacy._RF.push({}, "e1a2bPE1eZH+Imrze8BI0Vn", "VibrationManager", undefined);
-      /**
-       * 震动管理器
-       * 封装浏览器震动API，提供降级处理
-       */
       var VibrationManager = exports('VibrationManager', /*#__PURE__*/function () {
         function VibrationManager() {}
         /**
-         * 初始化震动管理器，检测浏览器支持
+         * 初始化震动管理器
          */
         VibrationManager.init = function init() {
           if (this.initialized) return;
-
-          // 检测浏览器对震动API的支持
-          var nav = navigator;
-          nav.vibrate = nav.vibrate || nav.webkitVibrate || nav.mozVibrate || nav.msVibrate;
-          this.isSupported = !!nav.vibrate;
           this.initialized = true;
-          if (this.isSupported) {
-            console.log('[VibrationManager] 浏览器支持震动API');
-          } else {
-            console.warn('[VibrationManager] 浏览器不支持震动API，震动功能将被禁用');
-          }
+          console.log('[VibrationManager] 震动管理器已初始化（使用 Unity 接口）');
         }
 
         /**
-         * 触发震动
-         * @param duration 震动持续时间（毫秒）
+         * 触发震动（统一通过 Unity 接口）
+         * @param duration 震动持续时间（毫秒）- 参数保留兼容性，实际固定为 500ms
          */;
         VibrationManager.vibrate = function vibrate(duration) {
           if (!this.initialized) {
             this.init();
           }
-          if (!this.isSupported) return;
-          try {
-            var result = navigator.vibrate(duration);
-            // console.log('[VibrationManager] 震动结果:', result);
-          } catch (e) {
-            console.error('[VibrationManager] 震动失败:', e);
-          }
+
+          // 通过 Unity 接口触发手机震动（type=4, 固定 500ms）
+          ToyControlInterface.vibratePhone();
         }
 
         /**
-         * 停止震动
+         * 停止震动（保留接口兼容性，实际无需实现）
          */;
         VibrationManager.stop = function stop() {
-          if (!this.initialized) {
-            this.init();
-          }
-          if (!this.isSupported) return;
-          try {
-            navigator.vibrate(0);
-          } catch (e) {
-            console.error('[VibrationManager] 停止震动失败:', e);
-          }
+          // Unity 接口控制的震动会自动停止，无需手动调用
         }
 
         /**
@@ -2216,15 +2309,11 @@ System.register("chunks:///_virtual/VibrationManager.ts", ['./rollupPluginModLoB
         _createClass(VibrationManager, null, [{
           key: "supported",
           get: function get() {
-            if (!this.initialized) {
-              this.init();
-            }
-            return this.isSupported;
+            return ToyControlInterface.enabled;
           }
         }]);
         return VibrationManager;
       }());
-      VibrationManager.isSupported = false;
       VibrationManager.initialized = false;
       cclegacy._RF.pop();
     }
