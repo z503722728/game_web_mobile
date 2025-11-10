@@ -397,8 +397,8 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
         }
 
         /**
-         * 播放预备动画（0.5秒）
-         * 效果：泡泡抖动 + 放大，为即将爆炸做准备
+         * 播放预备动画（0.15秒）
+         * 效果：快速放大 + 轻微抖动，保持流畅感
          */;
         _proto.playPrepareAnimation = function playPrepareAnimation(onComplete) {
           var bubbleNode = this.UI.node;
@@ -407,48 +407,32 @@ System.register("chunks:///_virtual/Game_Bubbble_Logic.ts", ['./rollupPluginModL
           // 停止之前的动画
           tween(bubbleNode).stop();
 
-          // 抖动 + 放大动画（0.5秒）
+          // 快速抖动 + 放大动画（0.15秒）
           tween(bubbleNode)
-          // 快速放大到1.1倍
-          .to(0.1, {
+          // 快速放大到1.1倍（弹性）
+          .to(0.05, {
             scale: new Vec3(1.1, 1.1, 1)
           }, {
             easing: "backOut"
           })
-          // 左右抖动
-          .to(0.05, {
+          // 左右抖动（2次，快速）
+          .to(0.025, {
             scale: new Vec3(1.15, 1.05, 1),
-            eulerAngles: new Vec3(0, 0, 5)
+            eulerAngles: new Vec3(0, 0, 8)
           }, {
             easing: "sineInOut"
-          }).to(0.05, {
+          }).to(0.025, {
             scale: new Vec3(1.05, 1.15, 1),
-            eulerAngles: new Vec3(0, 0, -5)
-          }, {
-            easing: "sineInOut"
-          }).to(0.05, {
-            scale: new Vec3(1.15, 1.05, 1),
-            eulerAngles: new Vec3(0, 0, 5)
-          }, {
-            easing: "sineInOut"
-          }).to(0.05, {
-            scale: new Vec3(1.05, 1.15, 1),
-            eulerAngles: new Vec3(0, 0, -5)
+            eulerAngles: new Vec3(0, 0, -8)
           }, {
             easing: "sineInOut"
           })
           // 继续放大到1.2倍
-          .to(0.1, {
+          .to(0.05, {
             scale: new Vec3(1.2, 1.2, 1),
             eulerAngles: new Vec3(0, 0, 0)
           }, {
             easing: "sineOut"
-          })
-          // 微微缩小到1.15倍
-          .to(0.1, {
-            scale: new Vec3(1.15, 1.15, 1)
-          }, {
-            easing: "sineIn"
           })
           // 完成后回调
           .call(function () {
