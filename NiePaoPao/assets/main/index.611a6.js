@@ -2119,9 +2119,11 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
           var intensity = this.mapSpeedToIntensity(speed);
           this.currentIntensity = intensity;
           console.log("[ToyControlInterface] \u8FDE\u51FB" + comboCount + "\u6B21\uFF0C\u901F\u5EA6" + speed.toFixed(1) + "/\u79D2\uFF0C\u5F3A\u5EA6=" + intensity);
-
-          // 调用 Unity 接口
-          this.callUnityInterface(ToyControlType.GAME_PLAYING, intensity);
+          if (intensity === VibrationIntensity.MISS) {
+            this.callUnityInterface(ToyControlType.GAME_PAUSE, intensity);
+          } else {
+            this.callUnityInterface(ToyControlType.GAME_PLAYING, intensity);
+          }
         }
 
         /**
@@ -2133,7 +2135,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
           console.log('[ToyControlInterface] 连击中断，停止振动');
 
           // 发送 Miss 表示停止振动
-          this.callUnityInterface(ToyControlType.GAME_PAUSE, VibrationIntensity.MISS);
+          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.MISS);
         }
 
         /**
@@ -2145,7 +2147,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
           this.currentIntensity = null;
 
           // 发送游戏中状态
-          this.callUnityInterface(ToyControlType.GAME_PAUSE, VibrationIntensity.MISS);
+          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.MISS);
         }
 
         /**
