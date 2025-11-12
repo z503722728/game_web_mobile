@@ -2133,7 +2133,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
           console.log('[ToyControlInterface] 连击中断，停止振动');
 
           // 发送 Miss 表示停止振动
-          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.MISS);
+          this.callUnityInterface(ToyControlType.GAME_PAUSE, VibrationIntensity.MISS);
         }
 
         /**
@@ -2145,7 +2145,7 @@ System.register("chunks:///_virtual/ToyControlInterface.ts", ['./rollupPluginMod
           this.currentIntensity = null;
 
           // 发送游戏中状态
-          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.MISS);
+          this.callUnityInterface(ToyControlType.GAME_PAUSE, VibrationIntensity.MISS);
         }
 
         /**
