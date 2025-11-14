@@ -30,7 +30,7 @@
         "customJointTextureLayouts": []
     },
     "assets": {
-        "server": "",
+        "server": "http://192.168.255.10:7456/build/web-mobile/",
         "remoteBundles": [],
         "subpackages": [],
         "preloadBundles": [
