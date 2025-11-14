@@ -5820,7 +5820,7 @@ System.register("chunks:///_virtual/drongo-cc.mjs", ['./rollupPluginModLoBabelHe
 });
 
 System.register("chunks:///_virtual/drongo-gui.mjs", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './fairygui.mjs'], function (exports) {
-  var _inheritsLoose, _createClass, _createForOfIteratorHelperLoose, _assertThisInitialized, _regeneratorRuntime, Color, director, Director, UITransform, gfx, clamp, UI, StencilManager, math, view, tween, Vec3, js, Component, mk_monitor$1, TickerManager, mk_release, mk_tool, mk_logger, Key, mk_event_target, Timer, log, error, GRoot, GComponent, GTextField, Window, GProgressBar, GSlider, GRichTextField, GButton, GTextInput, GLabel, Controller, EaseType, GTween, UIPackage, UIObjectFactory;
+  var _inheritsLoose, _createClass, _createForOfIteratorHelperLoose, _assertThisInitialized, _regeneratorRuntime, Color, director, Director, UITransform, gfx, clamp, UI, StencilManager, math, view, tween, Vec3, js, Component, AudioSource, Node, mk_monitor$1, TickerManager, mk_release, mk_tool, mk_logger, Key, mk_event_target, Timer, log, error, GRoot, GComponent, GTextField, Window, UIPackage, GProgressBar, GSlider, GRichTextField, GButton, GTextInput, GLabel, Controller, EaseType, GTween, UIObjectFactory;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
@@ -5843,6 +5843,8 @@ System.register("chunks:///_virtual/drongo-gui.mjs", ['./rollupPluginModLoBabelH
       Vec3 = module.Vec3;
       js = module.js;
       Component = module.Component;
+      AudioSource = module.AudioSource;
+      Node = module.Node;
     }, function (module) {
       mk_monitor$1 = module.monitor;
       TickerManager = module.TickerManager;
@@ -5859,6 +5861,7 @@ System.register("chunks:///_virtual/drongo-gui.mjs", ['./rollupPluginModLoBabelH
       GComponent = module.GComponent;
       GTextField = module.GTextField;
       Window = module.Window;
+      UIPackage = module.UIPackage;
       GProgressBar = module.GProgressBar;
       GSlider = module.GSlider;
       GRichTextField = module.GRichTextField;
@@ -5868,7 +5871,6 @@ System.register("chunks:///_virtual/drongo-gui.mjs", ['./rollupPluginModLoBabelH
       Controller = module.Controller;
       EaseType = module.EaseType;
       GTween = module.GTween;
-      UIPackage = module.UIPackage;
       UIObjectFactory = module.UIObjectFactory;
     }],
     execute: function () {
@@ -6942,6 +6944,292 @@ System.register("chunks:///_virtual/drongo-gui.mjs", ['./rollupPluginModLoBabelH
           GRoot.create();
         }, GRoot);
       }
+
+      /**
+       * 背景适配工具类
+       * 根据 FairyGUI 的 UI 缩放系统自动适配 Cocos Node 背景
+       */
+      var BackgroundAdapter = exports('BackgroundAdapter', /*#__PURE__*/function () {
+        function BackgroundAdapter() {}
+        /**
+         * 根据 FairyGUI 的 UI 缩放系统适配背景大小
+         * @param bgNode 背景节点
+         * @param config 可选配置
+         */
+        BackgroundAdapter.adaptBackground = function adaptBackground(bgNode, config) {
+          var _a;
+          if (!bgNode) {
+            console.warn("[BackgroundAdapter] 背景节点未设置，跳过背景适配");
+            return;
+          }
+          var enableLog = (_a = config === null || config === void 0 ? void 0 : config.enableLog) !== null && _a !== void 0 ? _a : false;
+          try {
+            // 获取 FairyGUI 的根节点尺寸（已经考虑了缩放）
+            var fguiRoot = GRoot.inst;
+            var rootWidth = fguiRoot.width;
+            var rootHeight = fguiRoot.height;
+            // 获取设计分辨率作为参考
+            var designSize = view.getDesignResolutionSize();
+            // 获取屏幕窗口大小
+            var screenSize = view.getVisibleSize();
+            if (enableLog) {
+              console.log("[BackgroundAdapter] FairyGUI \u9002\u914D\u4FE1\u606F:\n                    FGUI \u6839\u8282\u70B9\u5C3A\u5BF8: " + rootWidth + " x " + rootHeight + "\n                    \u8BBE\u8BA1\u5206\u8FA8\u7387: " + designSize.width + " x " + designSize.height + "\n                    \u5C4F\u5E55\u5C3A\u5BF8: " + screenSize.width + " x " + screenSize.height);
+            }
+            // 使用 FairyGUI 的根节点尺寸来计算缩放比例
+            var widthScale = rootWidth / designSize.width;
+            var heightScale = rootHeight / designSize.height;
+            // 直接按照 FGUI 根节点尺寸设置背景的缩放，分别拉满宽度和高度
+            bgNode.setScale(widthScale, heightScale);
+            if (enableLog) {
+              console.log("[BackgroundAdapter] \u80CC\u666F\u9002\u914D\u5B8C\u6210:\n                    \u5BBD\u5EA6\u7F29\u653E: " + widthScale.toFixed(3) + "\n                    \u9AD8\u5EA6\u7F29\u653E: " + heightScale.toFixed(3) + "\n                    \u6700\u7EC8\u80CC\u666F\u5C3A\u5BF8: " + (designSize.width * widthScale).toFixed(1) + " x " + (designSize.height * heightScale).toFixed(1));
+            }
+          } catch (error) {
+            console.error("[BackgroundAdapter] 背景适配失败，回退到基础适配:", error);
+            // 回退方案：使用基础的视图尺寸
+            var visibleSize = view.getVisibleSize();
+            var _designSize = view.getDesignResolutionSize();
+            var _widthScale = visibleSize.width / _designSize.width;
+            var _heightScale = visibleSize.height / _designSize.height;
+            bgNode.setScale(_widthScale, _heightScale);
+            if (enableLog) {
+              console.log("[BackgroundAdapter] \u4F7F\u7528\u56DE\u9000\u65B9\u6848\u9002\u914D\u5B8C\u6210: " + _widthScale.toFixed(3) + " x " + _heightScale.toFixed(3));
+            }
+          }
+        };
+        return BackgroundAdapter;
+      }());
+      /**
+       * 音频工具类
+       * 提供 BGM 播放和全局音效池管理功能
+       */
+      var AudioUtil = exports('AudioUtil', /*#__PURE__*/function () {
+        function AudioUtil() {}
+        // ==================== BGM 播放 ====================
+        /**
+         * 播放背景音乐
+         * @param node 挂载 AudioSource 组件的节点
+         * @param packageName UI 包名
+         * @param soundName 音频资源名
+         * @param config 可选配置
+         * @returns AudioSource 组件实例
+         */
+        AudioUtil.playBGM = function playBGM(node, packageName, soundName, config) {
+          var _a, _b;
+          try {
+            // 从 UIPackage 加载音频资源
+            var uiPackage = UIPackage.getByName(packageName);
+            if (!uiPackage) {
+              console.error("[AudioUtil] UIPackage \"" + packageName + "\" \u672A\u627E\u5230");
+              return null;
+            }
+            var audioClip = uiPackage.getItemAssetByName(soundName);
+            if (!audioClip) {
+              console.error("[AudioUtil] \u97F3\u9891\u8D44\u6E90 \"" + soundName + "\" \u5728\u5305 \"" + packageName + "\" \u4E2D\u672A\u627E\u5230");
+              return null;
+            }
+            // 创建 AudioSource 组件
+            var audioSource = node.addComponent(AudioSource);
+            if (!audioSource.isValid) {
+              console.error("[AudioUtil] AudioSource \u7EC4\u4EF6\u521B\u5EFA\u5931\u8D25");
+              return null;
+            }
+            // 配置 AudioSource
+            audioSource.clip = audioClip;
+            audioSource.volume = (_a = config === null || config === void 0 ? void 0 : config.volume) !== null && _a !== void 0 ? _a : 0.7;
+            audioSource.loop = (_b = config === null || config === void 0 ? void 0 : config.loop) !== null && _b !== void 0 ? _b : true;
+            audioSource.playOnAwake = false;
+            // 播放音乐
+            audioSource.play();
+            return audioSource;
+          } catch (error) {
+            console.error("[AudioUtil] \u64AD\u653E BGM \u5931\u8D25:", error);
+            return null;
+          }
+        }
+        // ==================== 音效池管理 ====================
+        /**
+         * 配置音效池（必须在初始化前调用）
+         * @param config 音效池配置
+         */;
+        AudioUtil.configureSoundPool = function configureSoundPool(config) {
+          if (this.poolInitialized) {
+            console.warn("[AudioUtil] 音效池已初始化，配置更新将在下次初始化时生效");
+          }
+          if (config.maxInstances !== undefined) {
+            this.config.maxInstances = config.maxInstances;
+          }
+          if (config.defaultVolume !== undefined) {
+            this.config.defaultVolume = config.defaultVolume;
+          }
+          if (config.enableLog !== undefined) {
+            this.config.enableLog = config.enableLog;
+          }
+          if (this.config.enableLog) {
+            console.log("[AudioUtil] \u97F3\u6548\u6C60\u914D\u7F6E\u5DF2\u66F4\u65B0:", this.config);
+          }
+        }
+        /**
+         * 初始化音效池（延迟初始化，首次 playSound 时自动调用）
+         */;
+        AudioUtil.initSoundPool = function initSoundPool() {
+          if (this.poolInitialized) {
+            return;
+          }
+          try {
+            // 创建音效容器节点
+            this.audioContainer = new Node('AudioSourcePool');
+            // 标记为常驻节点，防止场景切换时销毁
+            // TODO: 根据实际需求决定是否需要 DontDestroyOnLoad
+            // director.addPersistRootNode(this.audioContainer);
+            // 创建固定数量的 AudioSource 实例
+            for (var i = 0; i < this.config.maxInstances; i++) {
+              var audioSource = this.audioContainer.addComponent(AudioSource);
+              audioSource.loop = false;
+              audioSource.playOnAwake = false;
+              audioSource.volume = this.config.defaultVolume;
+              this.audioSourcePool.push(audioSource);
+            }
+            this.poolInitialized = true;
+            if (this.config.enableLog) {
+              console.log("[AudioUtil] \u97F3\u6548\u6C60\u521D\u59CB\u5316\u6210\u529F\uFF0C\u521B\u5EFA\u4E86 " + this.config.maxInstances + " \u4E2A\u97F3\u6548\u5B9E\u4F8B");
+            }
+          } catch (error) {
+            console.error("[AudioUtil] \u97F3\u6548\u6C60\u521D\u59CB\u5316\u5931\u8D25:", error);
+          }
+        }
+        /**
+         * 播放音效（自动初始化音效池）
+         * @param packageName UI 包名
+         * @param soundName 音频资源名
+         */;
+        AudioUtil.playSound = function playSound(packageName, soundName) {
+          // 延迟初始化音效池
+          if (!this.poolInitialized) {
+            this.initSoundPool();
+          }
+          if (this.audioSourcePool.length === 0) {
+            console.warn("[AudioUtil] 音效池未初始化或为空");
+            return;
+          }
+          try {
+            // 生成缓存 key
+            var cacheKey = packageName + "_" + soundName;
+            // 从缓存中获取音频资源
+            var audioClip = this.soundCache.get(cacheKey);
+            // 如果缓存中没有，则加载资源
+            if (!audioClip) {
+              var uiPackage = UIPackage.getByName(packageName);
+              if (!uiPackage) {
+                console.error("[AudioUtil] UIPackage \"" + packageName + "\" \u672A\u627E\u5230");
+                return;
+              }
+              audioClip = uiPackage.getItemAssetByName(soundName);
+              if (!audioClip) {
+                console.error("[AudioUtil] \u97F3\u9891\u8D44\u6E90 \"" + soundName + "\" \u5728\u5305 \"" + packageName + "\" \u4E2D\u672A\u627E\u5230");
+                return;
+              }
+              // 缓存音频资源
+              this.soundCache.set(cacheKey, audioClip);
+              if (this.config.enableLog) {
+                console.log("[AudioUtil] \u97F3\u9891\u8D44\u6E90\u5DF2\u7F13\u5B58: " + cacheKey);
+              }
+            }
+            // 轮询获取下一个音效源
+            var audioSource = this.audioSourcePool[this.audioSourceIndex];
+            // 如果当前音效源正在播放，先停止（达到上限时替换最旧的音效）
+            if (audioSource.playing) {
+              audioSource.stop();
+            }
+            // 设置音频资源并播放
+            audioSource.clip = audioClip;
+            audioSource.play();
+            // 移动到下一个音效源索引（循环使用）
+            this.audioSourceIndex = (this.audioSourceIndex + 1) % this.audioSourcePool.length;
+          } catch (error) {
+            console.error("[AudioUtil] \u64AD\u653E\u97F3\u6548\u5931\u8D25:", error);
+          }
+        }
+        /**
+         * 停止所有音效
+         */;
+        AudioUtil.stopAllSounds = function stopAllSounds() {
+          if (!this.poolInitialized) {
+            return;
+          }
+          try {
+            this.audioSourcePool.forEach(function (audioSource) {
+              if (audioSource.playing) {
+                audioSource.stop();
+              }
+            });
+            if (this.config.enableLog) {
+              console.log("[AudioUtil] \u5DF2\u505C\u6B62\u6240\u6709\u97F3\u6548");
+            }
+          } catch (error) {
+            console.error("[AudioUtil] \u505C\u6B62\u97F3\u6548\u5931\u8D25:", error);
+          }
+        }
+        /**
+         * 销毁音效池（场景切换时调用）
+         */;
+        AudioUtil.dispose = function dispose() {
+          if (!this.poolInitialized) {
+            return;
+          }
+          try {
+            // 停止所有音效
+            this.stopAllSounds();
+            // 清空音效池
+            this.audioSourcePool = [];
+            this.audioSourceIndex = 0;
+            // 销毁容器节点
+            if (this.audioContainer && this.audioContainer.isValid) {
+              this.audioContainer.destroy();
+            }
+            this.audioContainer = null;
+            // 清空音效缓存
+            this.soundCache.clear();
+            // 重置初始化标记
+            this.poolInitialized = false;
+            if (this.config.enableLog) {
+              console.log("[AudioUtil] \u97F3\u6548\u6C60\u5DF2\u9500\u6BC1");
+            }
+          } catch (error) {
+            console.error("[AudioUtil] \u9500\u6BC1\u97F3\u6548\u6C60\u5931\u8D25:", error);
+          }
+        }
+        /**
+         * 获取音效池状态信息（调试用）
+         */;
+        AudioUtil.getPoolStatus = function getPoolStatus() {
+          return {
+            initialized: this.poolInitialized,
+            poolSize: this.audioSourcePool.length,
+            currentIndex: this.audioSourceIndex,
+            cachedSounds: this.soundCache.size,
+            playingSounds: this.audioSourcePool.filter(function (src) {
+              return src.playing;
+            }).length
+          };
+        };
+        return AudioUtil;
+      }()); // ==================== 音效池相关 ====================
+      /** 全局音效池（单例共享） */
+      AudioUtil.audioSourcePool = [];
+      /** 当前音效索引（轮询使用） */
+      AudioUtil.audioSourceIndex = 0;
+      /** 音效容器节点 */
+      AudioUtil.audioContainer = null;
+      /** 音效资源缓存 Map<packageName_soundName, AudioClip> */
+      AudioUtil.soundCache = new Map();
+      /** 音效池配置 */
+      AudioUtil.config = {
+        maxInstances: 8,
+        defaultVolume: 1.0,
+        enableLog: false
+      };
+      /** 音效池是否已初始化 */
+      AudioUtil.poolInitialized = false;
       function GBind(conmponent, obj, key, prop) {
         return new GUIBindNew(conmponent, obj, key, prop);
       }

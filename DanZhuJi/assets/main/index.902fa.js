@@ -1182,7 +1182,7 @@ System.register("chunks:///_virtual/GameBinder.ts", ['cc', './drongo-gui.mjs', '
 });
 
 System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './LaunchConfig.ts', './AutoTester.ts', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Vec3, Input, input, v2, PhysicsSystem2D, Contact2DType, tween, KeyCode, Component, log, LaunchConfig, AutoTester, ballPhysicsConfig, GUIManager, Game_TestView;
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Vec3, Input, input, v2, PhysicsSystem2D, Contact2DType, tween, KeyCode, Component, log, LaunchConfig, AutoTester, ballPhysicsConfig, BackgroundAdapter, GUIManager, Game_TestView;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -1198,6 +1198,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
       Button = module.Button;
       UITransform = module.UITransform;
       Collider2D = module.Collider2D;
+      Node = module.Node;
       Vec3 = module.Vec3;
       Input = module.Input;
       input = module.input;
@@ -1216,12 +1217,13 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
     }, function (module) {
       ballPhysicsConfig = module.ballPhysicsConfig;
     }, function (module) {
+      BackgroundAdapter = module.BackgroundAdapter;
       GUIManager = module.GUIManager;
     }, function (module) {
       Game_TestView = module.default;
     }],
     execute: function () {
-      var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _class, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8;
+      var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _class, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9;
       cclegacy._RF.push({}, "d57e3ArPSBD/Irqo5u90c1c", "GameView", undefined);
       var ccclass = _decorator.ccclass,
         property = _decorator.property;
@@ -1233,7 +1235,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         BallState[BallState["FLYING"] = 2] = "FLYING";
         return BallState;
       }(BallState || {});
-      var GameView = exports('GameView', (_dec = ccclass('GameView'), _dec2 = property(RigidBody2D), _dec3 = property(Button), _dec4 = property(UITransform), _dec5 = property([Collider2D]), _dec6 = property([Collider2D]), _dec7 = property(Button), _dec8 = property(Button), _dec9 = property(Button), _dec(_class = (_class2 = /*#__PURE__*/function (_Component) {
+      var GameView = exports('GameView', (_dec = ccclass('GameView'), _dec2 = property(RigidBody2D), _dec3 = property(Button), _dec4 = property(UITransform), _dec5 = property([Collider2D]), _dec6 = property([Collider2D]), _dec7 = property(Node), _dec8 = property(Button), _dec9 = property(Button), _dec10 = property(Button), _dec(_class = (_class2 = /*#__PURE__*/function (_Component) {
         _inheritsLoose(GameView, _Component);
         function GameView() {
           var _this;
@@ -1247,10 +1249,11 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           _initializerDefineProperty(_this, "JiangLiColliders", _descriptor4, _assertThisInitialized(_this));
           // 碰撞到这些碰撞体的时候 让它们的父节点播放一下放大缩小的动画
           _initializerDefineProperty(_this, "AnimaColliders", _descriptor5, _assertThisInitialized(_this));
+          _initializerDefineProperty(_this, "bg", _descriptor6, _assertThisInitialized(_this));
           // test
-          _initializerDefineProperty(_this, "ResetGameBtn", _descriptor6, _assertThisInitialized(_this));
-          _initializerDefineProperty(_this, "AutoTestBtn", _descriptor7, _assertThisInitialized(_this));
-          _initializerDefineProperty(_this, "CanshuBtn", _descriptor8, _assertThisInitialized(_this));
+          _initializerDefineProperty(_this, "ResetGameBtn", _descriptor7, _assertThisInitialized(_this));
+          _initializerDefineProperty(_this, "AutoTestBtn", _descriptor8, _assertThisInitialized(_this));
+          _initializerDefineProperty(_this, "CanshuBtn", _descriptor9, _assertThisInitialized(_this));
           // ========== 状态管理 ==========
           _this.ballState = BallState.IDLE;
           // ========== 蓄力系统参数 ==========
@@ -1287,6 +1290,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         // 最后命中的赛道索引
         _proto.onLoad = function onLoad() {
           log('[GameView] 初始化弹珠机游戏');
+          BackgroundAdapter.adaptBackground(this.bg);
 
           // ========== 配置物理引擎确定性 ==========
           this.setupPhysicsDeterminism();
@@ -1965,17 +1969,22 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         initializer: function initializer() {
           return [];
         }
-      }), _descriptor6 = _applyDecoratedDescriptor(_class2.prototype, "ResetGameBtn", [_dec7], {
+      }), _descriptor6 = _applyDecoratedDescriptor(_class2.prototype, "bg", [_dec7], {
         configurable: true,
         enumerable: true,
         writable: true,
         initializer: null
-      }), _descriptor7 = _applyDecoratedDescriptor(_class2.prototype, "AutoTestBtn", [_dec8], {
+      }), _descriptor7 = _applyDecoratedDescriptor(_class2.prototype, "ResetGameBtn", [_dec8], {
         configurable: true,
         enumerable: true,
         writable: true,
         initializer: null
-      }), _descriptor8 = _applyDecoratedDescriptor(_class2.prototype, "CanshuBtn", [_dec9], {
+      }), _descriptor8 = _applyDecoratedDescriptor(_class2.prototype, "AutoTestBtn", [_dec9], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: null
+      }), _descriptor9 = _applyDecoratedDescriptor(_class2.prototype, "CanshuBtn", [_dec10], {
         configurable: true,
         enumerable: true,
         writable: true,
@@ -2455,7 +2464,7 @@ System.register("chunks:///_virtual/PoolMgr.ts", ['./rollupPluginModLoBabelHelpe
 });
 
 System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, view, AudioSourceComponent, tween, Component, AllBinder, GUIManager, UIConfig, registerFont, GRoot, UIPackage, logConfig, LogLevel, log;
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, view, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, UIConfig, registerFont, GRoot, log;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -2473,20 +2482,18 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
       color = module.color;
       director = module.director;
       view = module.view;
-      AudioSourceComponent = module.AudioSourceComponent;
       tween = module.tween;
       Component = module.Component;
     }, function (module) {
+      AudioUtil = module.AudioUtil;
       AllBinder = module.AllBinder;
+      BackgroundAdapter = module.BackgroundAdapter;
       GUIManager = module.GUIManager;
     }, null, function (module) {
       UIConfig = module.UIConfig;
       registerFont = module.registerFont;
       GRoot = module.GRoot;
-      UIPackage = module.UIPackage;
     }, function (module) {
-      logConfig = module.logConfig;
-      LogLevel = module.LogLevel;
       log = module.log;
     }],
     execute: function () {
@@ -2527,9 +2534,6 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
           this.progressBar.progress = 0;
           this.label.string = "0%";
           this.progressObj.value = 0;
-          {
-            logConfig.level_n = LogLevel.none;
-          }
           director.addPersistRootNode(this.node);
         }
 
@@ -2571,22 +2575,6 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
             var _heightScale = visibleSize.height / _designSize.height;
             this.bg.setScale(_widthScale, _heightScale);
           }
-        }
-
-        /**
-         * 播放背景音乐
-         */;
-        _proto.playBGM = function playBGM(node, packageName, soundName) {
-          var uipackage = UIPackage.getByName(packageName);
-          var sound = uipackage.getItemAssetByName(soundName);
-          var audioEngine = node.addComponent(AudioSourceComponent);
-          if (audioEngine.isValid) {
-            audioEngine.clip = sound;
-            audioEngine.volume = 0.7;
-            audioEngine.loop = true;
-            audioEngine.play();
-          }
-          return audioEngine;
         };
         _proto.start = /*#__PURE__*/function () {
           var _start = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -2596,7 +2584,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                 case 0:
                   AllBinder.bindAll();
                   _context.prev = 1;
-                  this.adaptBackgroundSize();
+                  BackgroundAdapter.adaptBackground(this.bg);
 
                   // ==================== 阶段1: 加载UI包 (0% - 50%) ====================
                   log("开始加载UI包...");
@@ -2637,7 +2625,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                 case 10:
                   // ==================== 播放BGM ====================
                   try {
-                    this.playBGM(this.node, "Game", "bgm");
+                    AudioUtil.playBGM(this.node, "Game", "bgm");
                     log("BGM播放成功");
                   } catch (error) {
                     console.warn("BGM播放失败:", error);
