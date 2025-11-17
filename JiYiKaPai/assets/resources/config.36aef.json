@@ -1,0 +1,282 @@
+{
+    "importBase": "import",
+    "nativeBase": "native",
+    "name": "resources",
+    "deps": [],
+    "uuids": [
+        "02eeb3af3",
+        "121bf6ec-8169-44d1-9966-7682b0c110c6",
+        "1df4fb31-a489-4cdd-8578-c58e74673b29",
+        "240717ba-ee9d-46a2-9560-d3b90ab5a77d",
+        "240717ba-ee9d-46a2-9560-d3b90ab5a77d@6c48a",
+        "274b74bb-491f-493d-bee1-f0d86cacfb86",
+        "38417788-6ae0-4166-a180-06f47d831bf4",
+        "456042ba-7dd1-452c-a76b-cf79a55fcd6c",
+        "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60",
+        "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60@6c48a",
+        "5852cb51-e24f-438d-ba9b-3db1208d8adc",
+        "7a2413e6-efc8-42d1-997e-81ca48495258",
+        "7eeb945d-1451-46d7-b2fb-ee1e8408c949",
+        "88199481-7036-4137-84c6-220a30978050",
+        "900269b1-32e4-4815-ac3f-1bd098e49e59",
+        "900269b1-32e4-4815-ac3f-1bd098e49e59@6c48a",
+        "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39",
+        "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39@6c48a",
+        "96b49118-f221-41b2-b0c0-836ad32a2cbc",
+        "96b49118-f221-41b2-b0c0-836ad32a2cbc@6c48a",
+        "9ec30a40-e0f2-49c7-9658-438b283320d2",
+        "9ec30a40-e0f2-49c7-9658-438b283320d2@6c48a",
+        "bfdb9709-ca17-43f0-86b5-67f6068465fb",
+        "bfdb9709-ca17-43f0-86b5-67f6068465fb@6c48a",
+        "c0552647-e74b-4dd9-b7ee-971ea730d840",
+        "c1c0d1be-eb2f-467e-b004-4b9cf455dc20",
+        "c1c0d1be-eb2f-467e-b004-4b9cf455dc20@6c48a",
+        "c22593bb-8f2f-4fef-84ab-410d80c25d9d",
+        "c22593bb-8f2f-4fef-84ab-410d80c25d9d@6c48a",
+        "c91b83dc-8cb1-4aae-9e0d-b02aeefe0519",
+        "fcd8cac8-d13b-4ca0-9ee3-cbaa4b010acd"
+    ],
+    "paths": {
+        "38417788-6ae0-4166-a180-06f47d831bf4": [
+            "Inter-BoldItalic",
+            "cc.TTFFont",
+            1
+        ],
+        "7eeb945d-1451-46d7-b2fb-ee1e8408c949": [
+            "fonts/Arial.tmf",
+            "cc.BufferAsset",
+            1
+        ],
+        "c0552647-e74b-4dd9-b7ee-971ea730d840": [
+            "fonts/Arial.tmf",
+            "cc.Material",
+            1
+        ],
+        "88199481-7036-4137-84c6-220a30978050": [
+            "fonts/Arial3D.tmf",
+            "cc.Material",
+            1
+        ],
+        "c91b83dc-8cb1-4aae-9e0d-b02aeefe0519": [
+            "fonts/sample-charset",
+            "cc.TextAsset",
+            1
+        ],
+        "7a2413e6-efc8-42d1-997e-81ca48495258": [
+            "materials/text-mesh-3d-mat",
+            "cc.Material",
+            1
+        ],
+        "456042ba-7dd1-452c-a76b-cf79a55fcd6c": [
+            "materials/text-mesh-mat",
+            "cc.Material",
+            1
+        ],
+        "121bf6ec-8169-44d1-9966-7682b0c110c6": [
+            "UI/Game",
+            "cc.BufferAsset",
+            1
+        ],
+        "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39": [
+            "UI/Game_atlas0",
+            "cc.ImageAsset",
+            1
+        ],
+        "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39@6c48a": [
+            "UI/Game_atlas0/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "c22593bb-8f2f-4fef-84ab-410d80c25d9d": [
+            "UI/Game_atlas1",
+            "cc.ImageAsset",
+            1
+        ],
+        "c22593bb-8f2f-4fef-84ab-410d80c25d9d@6c48a": [
+            "UI/Game_atlas1/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "bfdb9709-ca17-43f0-86b5-67f6068465fb": [
+            "UI/Game_atlas2",
+            "cc.ImageAsset",
+            1
+        ],
+        "bfdb9709-ca17-43f0-86b5-67f6068465fb@6c48a": [
+            "UI/Game_atlas2/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "c1c0d1be-eb2f-467e-b004-4b9cf455dc20": [
+            "UI/Game_atlas3",
+            "cc.ImageAsset",
+            1
+        ],
+        "c1c0d1be-eb2f-467e-b004-4b9cf455dc20@6c48a": [
+            "UI/Game_atlas3/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "96b49118-f221-41b2-b0c0-836ad32a2cbc": [
+            "UI/Game_atlas4",
+            "cc.ImageAsset",
+            1
+        ],
+        "96b49118-f221-41b2-b0c0-836ad32a2cbc@6c48a": [
+            "UI/Game_atlas4/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "9ec30a40-e0f2-49c7-9658-438b283320d2": [
+            "UI/Game_atlas_g1kk1b",
+            "cc.ImageAsset",
+            1
+        ],
+        "9ec30a40-e0f2-49c7-9658-438b283320d2@6c48a": [
+            "UI/Game_atlas_g1kk1b/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "900269b1-32e4-4815-ac3f-1bd098e49e59": [
+            "UI/Game_atlas_g1kk26",
+            "cc.ImageAsset",
+            1
+        ],
+        "900269b1-32e4-4815-ac3f-1bd098e49e59@6c48a": [
+            "UI/Game_atlas_g1kk26/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "240717ba-ee9d-46a2-9560-d3b90ab5a77d": [
+            "UI/Game_atlas_g1kkv",
+            "cc.ImageAsset",
+            1
+        ],
+        "240717ba-ee9d-46a2-9560-d3b90ab5a77d@6c48a": [
+            "UI/Game_atlas_g1kkv/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "1df4fb31-a489-4cdd-8578-c58e74673b29": [
+            "UI/Game_l2hm2u",
+            "cc.AudioClip",
+            1
+        ],
+        "fcd8cac8-d13b-4ca0-9ee3-cbaa4b010acd": [
+            "UI/Game_l2hm2v",
+            "cc.AudioClip",
+            1
+        ],
+        "274b74bb-491f-493d-bee1-f0d86cacfb86": [
+            "UI/Game_wntw2x",
+            "cc.AudioClip",
+            1
+        ],
+        "5852cb51-e24f-438d-ba9b-3db1208d8adc": [
+            "UI/Game_wntw2z",
+            "cc.AudioClip",
+            1
+        ]
+    },
+    "scenes": {},
+    "packs": {
+        "02eeb3af3": [
+            "9ec30a40-e0f2-49c7-9658-438b283320d2@6c48a",
+            "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60@6c48a",
+            "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39@6c48a",
+            "96b49118-f221-41b2-b0c0-836ad32a2cbc@6c48a",
+            "240717ba-ee9d-46a2-9560-d3b90ab5a77d@6c48a",
+            "900269b1-32e4-4815-ac3f-1bd098e49e59@6c48a",
+            "bfdb9709-ca17-43f0-86b5-67f6068465fb@6c48a",
+            "c1c0d1be-eb2f-467e-b004-4b9cf455dc20@6c48a",
+            "c22593bb-8f2f-4fef-84ab-410d80c25d9d@6c48a"
+        ]
+    },
+    "versions": {
+        "import": [
+            "02eeb3af3",
+            "effc9",
+            "121bf6ec-8169-44d1-9966-7682b0c110c6",
+            "f2b53",
+            "1df4fb31-a489-4cdd-8578-c58e74673b29",
+            "296a5",
+            "240717ba-ee9d-46a2-9560-d3b90ab5a77d",
+            "a2533",
+            "274b74bb-491f-493d-bee1-f0d86cacfb86",
+            "416e7",
+            "38417788-6ae0-4166-a180-06f47d831bf4",
+            "71974",
+            "456042ba-7dd1-452c-a76b-cf79a55fcd6c",
+            "61224",
+            "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60",
+            "c16a8",
+            "5852cb51-e24f-438d-ba9b-3db1208d8adc",
+            "a5fe0",
+            "7a2413e6-efc8-42d1-997e-81ca48495258",
+            "c94ef",
+            "7eeb945d-1451-46d7-b2fb-ee1e8408c949",
+            "00266",
+            "88199481-7036-4137-84c6-220a30978050",
+            "9b4f9",
+            "900269b1-32e4-4815-ac3f-1bd098e49e59",
+            "a2533",
+            "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39",
+            "a2533",
+            "96b49118-f221-41b2-b0c0-836ad32a2cbc",
+            "a2533",
+            "9ec30a40-e0f2-49c7-9658-438b283320d2",
+            "a2533",
+            "bfdb9709-ca17-43f0-86b5-67f6068465fb",
+            "a2533",
+            "c0552647-e74b-4dd9-b7ee-971ea730d840",
+            "77397",
+            "c1c0d1be-eb2f-467e-b004-4b9cf455dc20",
+            "a2533",
+            "c22593bb-8f2f-4fef-84ab-410d80c25d9d",
+            "a2533",
+            "c91b83dc-8cb1-4aae-9e0d-b02aeefe0519",
+            "c4027",
+            "fcd8cac8-d13b-4ca0-9ee3-cbaa4b010acd",
+            "a84fc"
+        ],
+        "native": [
+            "121bf6ec-8169-44d1-9966-7682b0c110c6",
+            "734e5",
+            "1df4fb31-a489-4cdd-8578-c58e74673b29",
+            "4b59e",
+            "240717ba-ee9d-46a2-9560-d3b90ab5a77d",
+            "c4821",
+            "274b74bb-491f-493d-bee1-f0d86cacfb86",
+            "5ac43",
+            "38417788-6ae0-4166-a180-06f47d831bf4",
+            "c4c47",
+            "52ef29ed-bd92-4e94-ab2f-0ebc91bf3a60",
+            "e4b32",
+            "5852cb51-e24f-438d-ba9b-3db1208d8adc",
+            "fb613",
+            "7eeb945d-1451-46d7-b2fb-ee1e8408c949",
+            "65f8b",
+            "900269b1-32e4-4815-ac3f-1bd098e49e59",
+            "73ea6",
+            "91e5ddb8-4972-48c0-af53-2a6cc4dcdb39",
+            "954ba",
+            "96b49118-f221-41b2-b0c0-836ad32a2cbc",
+            "4336f",
+            "9ec30a40-e0f2-49c7-9658-438b283320d2",
+            "ecc9d",
+            "bfdb9709-ca17-43f0-86b5-67f6068465fb",
+            "91b64",
+            "c1c0d1be-eb2f-467e-b004-4b9cf455dc20",
+            "23cf8",
+            "c22593bb-8f2f-4fef-84ab-410d80c25d9d",
+            "a201b",
+            "fcd8cac8-d13b-4ca0-9ee3-cbaa4b010acd",
+            "0317c"
+        ]
+    },
+    "redirect": [],
+    "debug": true,
+    "extensionMap": {},
+    "hasPreloadScript": true,
+    "dependencyRelationships": {}
+}
