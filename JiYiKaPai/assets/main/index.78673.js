@@ -378,9 +378,29 @@ System.register("chunks:///_virtual/Game_Card_Logic.ts", ['./rollupPluginModLoBa
             }, {
               easing: 'sineIn'
             }).call(function () {
+              // 翻牌完成后，如果翻到正面则显示选择框
+              if (toType > 0) {
+                _this2.showSelectFrame();
+              } else {
+                _this2.hideSelectFrame();
+              }
               resolve();
             }).start();
           });
+        }
+
+        /**
+         * 显示选择框
+         */;
+        _proto.showSelectFrame = function showSelectFrame() {
+          this.UI.m_seleted.selectedIndex = 1;
+        }
+
+        /**
+         * 隐藏选择框
+         */;
+        _proto.hideSelectFrame = function hideSelectFrame() {
+          this.UI.m_seleted.selectedIndex = 0;
         }
 
         /**
@@ -459,6 +479,7 @@ System.register("chunks:///_virtual/Game_Card.ts", ['./rollupPluginModLoBabelHel
           }
           _this = _fgui$GComponent.call.apply(_fgui$GComponent, [this].concat(args)) || this;
           _this.m_cardType = void 0;
+          _this.m_seleted = void 0;
           return _this;
         }
         Game_Card.createInstance = function createInstance() {
@@ -467,6 +488,7 @@ System.register("chunks:///_virtual/Game_Card.ts", ['./rollupPluginModLoBabelHel
         var _proto = Game_Card.prototype;
         _proto.onConstruct = function onConstruct() {
           this.m_cardType = this.getController("cardType");
+          this.m_seleted = this.getController("seleted");
         };
         return Game_Card;
       }(GComponent), _class2.URL = "ui://6gpz43l1g1kk25", _class2.Dependencies = ["Game"], _class2)) || _class);
@@ -942,7 +964,7 @@ System.register("chunks:///_virtual/Game_DialogWindow.ts", ['./rollupPluginModLo
 });
 
 System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_GanmePage.ts', './Game_Card.ts', './Game_Card_Logic.ts', './Game_StartPage.ts', './Game_ResultPage.ts', './Game_ResultTwoPlayerPage.ts', './Game_ChuChangRed.ts', './Game_ChuChangBlue.ts', './Game_ChuChangRed_Logic.ts', './Game_ChuChangBlue_Logic.ts', './Game_GuideView.ts', './Game_GuideView_Logic.ts', './GameMgr.ts', './FormatUtils.ts', './fairygui.mjs'], function (exports) {
-  var _inheritsLoose, _createForOfIteratorHelperLoose, _asyncToGenerator, _regeneratorRuntime, cclegacy, tween, Color, GUILogicBase, GBind, GUIManager, addLogic, Game_GanmePage, Game_Card, Game_Card_Logic, Game_StartPage, Game_ResultPage, Game_ResultTwoPlayerPage, Game_ChuChangRed, Game_ChuChangBlue, Game_ChuChangRed_Logic, Game_ChuChangBlue_Logic, Game_GuideView, Game_GuideView_Logic, gameMgr, FormatUtils, GGraph;
+  var _inheritsLoose, _createForOfIteratorHelperLoose, _asyncToGenerator, _regeneratorRuntime, cclegacy, tween, Color, addLogic, GUILogicBase, GBind, GUIManager, Game_GanmePage, Game_Card, Game_Card_Logic, Game_StartPage, Game_ResultPage, Game_ResultTwoPlayerPage, Game_ChuChangRed, Game_ChuChangBlue, Game_ChuChangRed_Logic, Game_ChuChangBlue_Logic, Game_GuideView, Game_GuideView_Logic, gameMgr, FormatUtils, GGraph;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
@@ -954,10 +976,10 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
       tween = module.tween;
       Color = module.Color;
     }, function (module) {
+      addLogic = module.addLogic;
       GUILogicBase = module.GUILogicBase;
       GBind = module.GBind;
       GUIManager = module.GUIManager;
-      addLogic = module.addLogic;
     }, function (module) {
       Game_GanmePage = module.default;
     }, function (module) {
@@ -990,9 +1012,9 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
       GGraph = module.GGraph;
     }],
     execute: function () {
-      var _dec, _class;
+      var _dec, _class, _class2;
       cclegacy._RF.push({}, "6cb2cmmLExBIqdbgbBU/cFV", "Game_GanmePage_Logic", undefined);
-      var Game_GanmePage_Logic = exports('default', (_dec = addLogic(Game_GanmePage), _dec(_class = /*#__PURE__*/function (_GUILogicBase) {
+      var Game_GanmePage_Logic = exports('default', (_dec = addLogic(Game_GanmePage), _dec(_class = (_class2 = /*#__PURE__*/function (_GUILogicBase) {
         _inheritsLoose(Game_GanmePage_Logic, _GUILogicBase);
         function Game_GanmePage_Logic() {
           var _this;
@@ -1006,7 +1028,7 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
           return _this;
         }
         var _proto = Game_GanmePage_Logic.prototype;
-        // AI是否正在处理
+        // 是否已显示过引导（游戏会话期间）
         _proto.onLoad = function onLoad() {
           // 绑定退出按钮
           this.UI.m_exitBtn.onClick(this.onExitClick, this);
@@ -1156,6 +1178,7 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
               cardUI.UI.scaleX = 1; // 重置缩放
               cardUI.UI.scaleY = 1; // 重置缩放
               cardUI.UI.alpha = 1; // 重置透明度
+              cardUI.hideSelectFrame(); // 重置选择框状态
             }
           }
 
@@ -1291,52 +1314,63 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
         _proto.checkAndHandleMatch = /*#__PURE__*/
         function () {
           var _checkAndHandleMatch = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-            var matchResult;
+            var gameState, _iterator3, _step3, card, cardUI, matchResult;
             return _regeneratorRuntime().wrap(function _callee3$(_context3) {
               while (1) switch (_context3.prev = _context3.next) {
                 case 0:
+                  gameState = gameMgr.getGameState();
+                  if (gameState) {
+                    // 隐藏已选卡片的选择框
+                    for (_iterator3 = _createForOfIteratorHelperLoose(gameState.selectedCards); !(_step3 = _iterator3()).done;) {
+                      card = _step3.value;
+                      cardUI = this.cardUIMap.get(card.id);
+                      if (cardUI) {
+                        cardUI.hideSelectFrame();
+                      }
+                    }
+                  }
                   matchResult = gameMgr.checkMatch();
                   if (!(matchResult === true)) {
-                    _context3.next = 6;
+                    _context3.next = 8;
                     break;
                   }
-                  _context3.next = 4;
+                  _context3.next = 6;
                   return this.handleMatchSuccess();
-                case 4:
-                  _context3.next = 9;
-                  break;
                 case 6:
+                  _context3.next = 11;
+                  break;
+                case 8:
                   if (!(matchResult === false)) {
-                    _context3.next = 9;
+                    _context3.next = 11;
                     break;
                   }
-                  _context3.next = 9;
+                  _context3.next = 11;
                   return this.handleMatchFail();
-                case 9:
+                case 11:
                   if (!gameMgr.isGameOver()) {
-                    _context3.next = 14;
+                    _context3.next = 16;
                     break;
                   }
-                  _context3.next = 12;
+                  _context3.next = 14;
                   return this.delay(500);
-                case 12:
+                case 14:
                   this.showResult();
                   return _context3.abrupt("return");
-                case 14:
+                case 16:
                   // 解锁操作
                   gameMgr.setProcessing(false);
 
                   // 如果是AI回合，继续
                   if (!gameMgr.isAITurn()) {
-                    _context3.next = 20;
+                    _context3.next = 22;
                     break;
                   }
-                  _context3.next = 18;
-                  return this.delay(1000);
-                case 18:
                   _context3.next = 20;
-                  return this.aiTurn();
+                  return this.delay(1000);
                 case 20:
+                  _context3.next = 22;
+                  return this.aiTurn();
+                case 22:
                 case "end":
                   return _context3.stop();
               }
@@ -1499,13 +1533,13 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
         }()
         /**
          * 播放配对成功动画
-         * 移动到屏幕中间并列，放大展示，等待，然后移动到下方消失
+         * 移动到屏幕中间并列，放大展示，等待，然后移动到获胜方向消失
          */;
 
         _proto.playMatchSuccessAnimation = /*#__PURE__*/
         function () {
           var _playMatchSuccessAnimation = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(card1, card2) {
-            var card1UI, card2UI, card1LocalPos, card2LocalPos, card1GlobalPos, card2GlobalPos, centerX, centerY, cardWidth, gap, centerDistance, card1CenterX, card2CenterX, targetY;
+            var card1UI, card2UI, gameState, card1LocalPos, card2LocalPos, card1GlobalPos, card2GlobalPos, centerX, centerY, cardWidth, gap, centerDistance, card1CenterX, card2CenterX, targetY, shrinkGap, card1TargetX, card2TargetX;
             return _regeneratorRuntime().wrap(function _callee7$(_context7) {
               while (1) switch (_context7.prev = _context7.next) {
                 case 0:
@@ -1517,6 +1551,13 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                   }
                   return _context7.abrupt("return");
                 case 4:
+                  gameState = gameMgr.getGameState();
+                  if (gameState) {
+                    _context7.next = 7;
+                    break;
+                  }
+                  return _context7.abrupt("return");
+                case 7:
                   // 获取卡牌在CardArea中的当前坐标
                   card1LocalPos = card1UI.UI.localToGlobal(0, 0);
                   card2LocalPos = card2UI.UI.localToGlobal(0, 0); // 将卡牌从CardArea移动到游戏界面根节点，保持视觉位置不变
@@ -1536,8 +1577,11 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                   centerDistance = cardWidth * 2 + gap;
                   card1CenterX = centerX - centerDistance / 2; // 左侧卡牌中心
                   card2CenterX = centerX + centerDistance / 2; // 右侧卡牌中心
-                  // 目标位置：游戏界面最下端
-                  targetY = this.UI.height - 30; // 播放动画：移动到中间 → 放大2倍 → 等待 → 移动到下端 → 消失
+                  // 目标位置：根据当前玩家决定收起方向（红方=上，蓝方=下）
+                  targetY = gameState.currentPlayer === 0 ? 30 : this.UI.height - 30; // 收起时的水平位置：向中心靠拢（缩小后两张卡片间距15像素）
+                  shrinkGap = 15;
+                  card1TargetX = centerX - shrinkGap / 2;
+                  card2TargetX = centerX + shrinkGap / 2; // 播放动画：移动到中间 → 放大2倍 → 等待 → 移动到获胜方向并靠拢 → 缩小渐隐
                   return _context7.abrupt("return", new Promise(function (resolve) {
                     // 卡牌1动画
                     var anim1 = tween(card1UI.UI)
@@ -1557,9 +1601,12 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                     })
                     // 阶段3：停留展示
                     .delay(1)
-                    // 阶段4：移动到下端
+                    // 阶段4：移动到目标位置 + 向中心靠拢 + 缩小
                     .to(0.4, {
-                      y: targetY
+                      x: card1TargetX,
+                      y: targetY,
+                      scaleX: 0.3,
+                      scaleY: 0.3
                     }, {
                       easing: 'sineIn'
                     })
@@ -1586,9 +1633,12 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                     })
                     // 阶段3：停留展示
                     .delay(1)
-                    // 阶段4：移动到下端
+                    // 阶段4：移动到目标位置 + 向中心靠拢 + 缩小
                     .to(0.4, {
-                      y: targetY
+                      x: card2TargetX,
+                      y: targetY,
+                      scaleX: 0.3,
+                      scaleY: 0.3
                     }, {
                       easing: 'sineIn'
                     })
@@ -1601,7 +1651,7 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                     anim1.start();
                     anim2.start();
                   }));
-                case 21:
+                case 27:
                 case "end":
                   return _context7.stop();
               }
@@ -1685,9 +1735,9 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                   mask.removeFromParent();
                   mask.dispose();
 
-                  // 如果是AI模式，显示引导弹窗
-                  if (!(gameState.mode === 'single')) {
-                    _context8.next = 48;
+                  // 如果是AI模式且未显示过引导，显示引导弹窗
+                  if (!(gameState.mode === 'single' && !Game_GanmePage_Logic.hasShownGuide)) {
+                    _context8.next = 49;
                     break;
                   }
                   this._log.log("显示引导弹窗");
@@ -1700,17 +1750,20 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
                   return guideLogic.waitForComplete();
                 case 47:
                   this._log.log("引导弹窗已完成");
-                case 48:
+
+                  // 标记为已显示
+                  Game_GanmePage_Logic.hasShownGuide = true;
+                case 49:
                   if (!gameMgr.isAITurn()) {
-                    _context8.next = 53;
+                    _context8.next = 54;
                     break;
                   }
-                  _context8.next = 51;
+                  _context8.next = 52;
                   return this.delay(500);
-                case 51:
-                  _context8.next = 53;
+                case 52:
+                  _context8.next = 54;
                   return this.aiTurn();
-                case 53:
+                case 54:
                 case "end":
                   return _context8.stop();
               }
@@ -1740,6 +1793,11 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
             this.UI.m_ai.grayed = false;
             this.UI.m_user.grayed = true;
             this.UI.m_img.grayed = true;
+            this.UI.m_touxiangkuang.grayed = false;
+            // AI回合时播放头像框旋转动画
+            if (gameState.mode === 'single') {
+              this.playAvatarRotateAnimation();
+            }
           } else {
             // 蓝方回合
             this.UI.m_red.grayed = true;
@@ -1747,8 +1805,31 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
             this.UI.m_ai.grayed = true;
             this.UI.m_user.grayed = false;
             this.UI.m_img.grayed = false;
+            this.UI.m_touxiangkuang.grayed = true;
           }
           this._log.log("\u9AD8\u4EAE\u73A9\u5BB6: " + (currentPlayer === 0 ? '红方' : '蓝方'));
+        }
+
+        /**
+         * 播放头像框旋转动画
+         */;
+        _proto.playAvatarRotateAnimation = function playAvatarRotateAnimation() {
+          var _this4 = this;
+          // 停止之前的动画
+          tween(this.UI.m_touxiangkuang).stop();
+
+          // 重置旋转角度
+          this.UI.m_touxiangkuang.rotation = 0;
+
+          // 播放360度旋转动画
+          tween(this.UI.m_touxiangkuang).to(0.5, {
+            rotation: 360
+          }, {
+            easing: 'backOut'
+          }).call(function () {
+            // 重置旋转角度，避免累积
+            _this4.UI.m_touxiangkuang.rotation = 0;
+          }).start();
         }
 
         /**
@@ -1782,6 +1863,9 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
           // 重置游戏状态
           gameMgr.resetGame();
 
+          // // 重置引导显示标志（返回主页时重置）
+          // Game_GanmePage_Logic.hasShownGuide = false;
+
           // 关闭游戏界面
           GUIManager.close(Game_GanmePage);
 
@@ -1798,7 +1882,7 @@ System.register("chunks:///_virtual/Game_GanmePage_Logic.ts", ['./rollupPluginMo
           });
         };
         return Game_GanmePage_Logic;
-      }(GUILogicBase)) || _class));
+      }(GUILogicBase), _class2.hasShownGuide = false, _class2)) || _class));
       cclegacy._RF.pop();
     }
   };
@@ -1832,11 +1916,12 @@ System.register("chunks:///_virtual/Game_GanmePage.ts", ['./rollupPluginModLoBab
           _this.m_red = void 0;
           _this.m_blue = void 0;
           _this.m_CardArea = void 0;
-          _this.m_ai = void 0;
           _this.m_fipsNum = void 0;
           _this.m_user = void 0;
           _this.m_username = void 0;
           _this.m_img = void 0;
+          _this.m_ai = void 0;
+          _this.m_touxiangkuang = void 0;
           _this.m_exitBtn = void 0;
           _this.m_blueValue = void 0;
           _this.m_redValue = void 0;
@@ -1851,11 +1936,12 @@ System.register("chunks:///_virtual/Game_GanmePage.ts", ['./rollupPluginModLoBab
           this.m_red = this.getChild("red");
           this.m_blue = this.getChild("blue");
           this.m_CardArea = this.getChild("CardArea");
-          this.m_ai = this.getChild("ai");
           this.m_fipsNum = this.getChild("fipsNum");
           this.m_user = this.getChild("user");
           this.m_username = this.getChild("username");
           this.m_img = this.getChild("img");
+          this.m_ai = this.getChild("ai");
+          this.m_touxiangkuang = this.getChild("touxiangkuang");
           this.m_exitBtn = this.getChild("exitBtn");
           this.m_blueValue = this.getChild("blueValue");
           this.m_redValue = this.getChild("redValue");
@@ -2019,12 +2105,15 @@ System.register("chunks:///_virtual/Game_GuideView.ts", ['./rollupPluginModLoBab
 });
 
 System.register("chunks:///_virtual/Game_ResultPage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_ResultPage.ts', './Game_GanmePage.ts', './Game_StartPage.ts', './GameMgr.ts', './FormatUtils.ts', './Game_DialogWindow.ts', './fairygui.mjs'], function (exports) {
-  var _inheritsLoose, cclegacy, addLogic, GUIManager, GUILogicBase, Game_ResultPage, Game_GanmePage, Game_StartPage, gameMgr, FormatUtils, GameDialogWindow, UIPackage, GRoot;
+  var _inheritsLoose, _asyncToGenerator, _regeneratorRuntime, cclegacy, tween, addLogic, GUIManager, GUILogicBase, Game_ResultPage, Game_GanmePage, Game_StartPage, gameMgr, FormatUtils, GameDialogWindow, UIPackage, GRoot;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
+      _asyncToGenerator = module.asyncToGenerator;
+      _regeneratorRuntime = module.regeneratorRuntime;
     }, function (module) {
       cclegacy = module.cclegacy;
+      tween = module.tween;
     }, function (module) {
       addLogic = module.addLogic;
       GUIManager = module.GUIManager;
@@ -2059,17 +2148,38 @@ System.register("chunks:///_virtual/Game_ResultPage_Logic.ts", ['./rollupPluginM
           this.UI.m_playAgainBtn.onClick(this.onPlayAgain, this);
           this.UI.m_homeBtn.onClick(this.onBackHome, this);
         };
-        _proto.start = function start() {
-          // 显示结算数据
-          this.displayResult();
+        _proto.start = /*#__PURE__*/function () {
+          var _start = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+            return _regeneratorRuntime().wrap(function _callee$(_context) {
+              while (1) switch (_context.prev = _context.next) {
+                case 0:
+                  // 显示结算数据
+                  this.displayResult();
 
-          // 播放音效
-          this.playResultSound();
-        }
+                  // 播放音效
+                  this.playResultSound();
 
+                  // 延迟后播放评分动画
+                  _context.next = 4;
+                  return this.delay(300);
+                case 4:
+                  _context.next = 6;
+                  return this.playRankAnimation();
+                case 6:
+                case "end":
+                  return _context.stop();
+              }
+            }, _callee, this);
+          }));
+          function start() {
+            return _start.apply(this, arguments);
+          }
+          return start;
+        }()
         /**
          * 显示结算数据
          */;
+
         _proto.displayResult = function displayResult() {
           var result = gameMgr.getGameResult();
           if (!result) {
@@ -2095,8 +2205,23 @@ System.register("chunks:///_virtual/Game_ResultPage_Logic.ts", ['./rollupPluginM
           this.UI.m_flipsValue.setVar("value", FormatUtils.padZero(flipsCount)).flushVars();
 
           // 显示评级和描述
-          var rankDescription = gameMgr.getRankDescription(rank);
-          this.UI.m_name.text = rank + " - " + rankDescription;
+          // const rankDescription = gameMgr.getRankDescription(rank);
+          // this.UI.m_name.text = `${rank} - ${rankDescription}`;
+
+          // 设置评分控制器索引（UI顺序：SSS, SS, S, A, B）
+          var rankIndexMap = {
+            'SSS': 0,
+            // 完美记忆
+            'SS': 1,
+            // 超凡
+            'S': 2,
+            // 大师
+            'A': 3,
+            // 高手
+            'B': 4 // 新手
+          };
+
+          this.UI.m_pingfen.selectedIndex = rankIndexMap[rank] || 4;
 
           // 如果UI有头像，显示获胜方头像
           if (this.UI.m_img) ;
@@ -2161,6 +2286,66 @@ System.register("chunks:///_virtual/Game_ResultPage_Logic.ts", ['./rollupPluginM
           } catch (error) {
             this._log.log("播放结算音效失败:", error);
           }
+        }
+
+        /**
+         * 播放评分图标飞入动画
+         */;
+        _proto.playRankAnimation = /*#__PURE__*/
+        function () {
+          var _playRankAnimation = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+            var _this = this;
+            var icon, originalY;
+            return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+              while (1) switch (_context2.prev = _context2.next) {
+                case 0:
+                  icon = this.UI.m_pinfenIcon;
+                  if (icon) {
+                    _context2.next = 3;
+                    break;
+                  }
+                  return _context2.abrupt("return");
+                case 3:
+                  // 记录原始位置
+                  originalY = icon.y; // 设置初始状态：上方200px，透明，缩小
+                  icon.y = originalY - 200;
+                  icon.alpha = 0;
+                  icon.scaleX = 0.5;
+                  icon.scaleY = 0.5;
+
+                  // 播放飞入动画：从上方飞入 + 弹性缩放 + 渐显
+                  return _context2.abrupt("return", new Promise(function (resolve) {
+                    tween(icon).to(0.6, {
+                      y: originalY,
+                      alpha: 1,
+                      scaleX: 1,
+                      scaleY: 1
+                    }, {
+                      easing: 'backOut'
+                    }).call(function () {
+                      _this._log.log("评分图标动画播放完成");
+                      resolve();
+                    }).start();
+                  }));
+                case 9:
+                case "end":
+                  return _context2.stop();
+              }
+            }, _callee2, this);
+          }));
+          function playRankAnimation() {
+            return _playRankAnimation.apply(this, arguments);
+          }
+          return playRankAnimation;
+        }()
+        /**
+         * 延迟辅助函数
+         */;
+
+        _proto.delay = function delay(ms) {
+          return new Promise(function (resolve) {
+            return setTimeout(resolve, ms);
+          });
         };
         return Game_ResultPage_Logic;
       }(GUILogicBase), _class2.uiOptions = {
@@ -2197,6 +2382,7 @@ System.register("chunks:///_virtual/Game_ResultPage.ts", ['./rollupPluginModLoBa
           }
           _this = _fgui$GComponent.call.apply(_fgui$GComponent, [this].concat(args)) || this;
           _this.m_winner = void 0;
+          _this.m_pingfen = void 0;
           _this.m_blueValue = void 0;
           _this.m_redValue = void 0;
           _this.m_playAgainBtn = void 0;
@@ -2204,6 +2390,7 @@ System.register("chunks:///_virtual/Game_ResultPage.ts", ['./rollupPluginModLoBa
           _this.m_flipsValue = void 0;
           _this.m_img = void 0;
           _this.m_name = void 0;
+          _this.m_pinfenIcon = void 0;
           return _this;
         }
         Game_ResultPage.createInstance = function createInstance() {
@@ -2212,6 +2399,7 @@ System.register("chunks:///_virtual/Game_ResultPage.ts", ['./rollupPluginModLoBa
         var _proto = Game_ResultPage.prototype;
         _proto.onConstruct = function onConstruct() {
           this.m_winner = this.getController("winner");
+          this.m_pingfen = this.getController("pingfen");
           this.m_blueValue = this.getChild("blueValue");
           this.m_redValue = this.getChild("redValue");
           this.m_playAgainBtn = this.getChild("playAgainBtn");
@@ -2219,6 +2407,7 @@ System.register("chunks:///_virtual/Game_ResultPage.ts", ['./rollupPluginModLoBa
           this.m_flipsValue = this.getChild("flipsValue");
           this.m_img = this.getChild("img");
           this.m_name = this.getChild("name");
+          this.m_pinfenIcon = this.getChild("pinfenIcon");
         };
         return Game_ResultPage;
       }(GComponent), _class2.URL = "ui://6gpz43l1l2hm2k", _class2.Dependencies = ["Game"], _class2)) || _class);
@@ -2682,19 +2871,19 @@ System.register("chunks:///_virtual/GameMgr.ts", ['./rollupPluginModLoBabelHelpe
             maxEfficiency: 2.1,
             description: '完美记忆'
           }, {
-            rank: 'S',
+            rank: 'SS',
             maxEfficiency: 2.3,
             description: '超凡'
           }, {
-            rank: 'A',
+            rank: 'S',
             maxEfficiency: 2.5,
             description: '大师'
           }, {
-            rank: 'B',
+            rank: 'A',
             maxEfficiency: 3.0,
             description: '高手'
           }, {
-            rank: 'C',
+            rank: 'B',
             maxEfficiency: Infinity,
             description: '新手'
           }];
@@ -2957,7 +3146,7 @@ System.register("chunks:///_virtual/GameMgr.ts", ['./rollupPluginModLoBabelHelpe
               return rule.rank;
             }
           }
-          return 'C';
+          return 'B';
         }
 
         /**
