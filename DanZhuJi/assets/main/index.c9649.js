@@ -1093,17 +1093,17 @@ System.register("chunks:///_virtual/Game_Component1.ts", ['./rollupPluginModLoBa
   };
 });
 
-System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_GamePage.ts', './GameDataMgr.ts', './drongo-cc.mjs', './Game_RulePage.ts'], function (exports) {
-  var _inheritsLoose, cclegacy, GBind, GUIManager, addLogic, GUILogicBase, Game_GamePage, gameDataMgr, log, Game_RulePage;
+System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_GamePage.ts', './GameDataMgr.ts', './drongo-cc.mjs', './Game_RulePage.ts', './CenteredWindow.ts'], function (exports) {
+  var _inheritsLoose, cclegacy, addLogic, GBind, GUIManager, GUILogicBase, Game_GamePage, gameDataMgr, log, Game_RulePage, CenteredWindow;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
     }, function (module) {
       cclegacy = module.cclegacy;
     }, function (module) {
+      addLogic = module.addLogic;
       GBind = module.GBind;
       GUIManager = module.GUIManager;
-      addLogic = module.addLogic;
       GUILogicBase = module.GUILogicBase;
     }, function (module) {
       Game_GamePage = module.default;
@@ -1113,11 +1113,13 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
       log = module.log;
     }, function (module) {
       Game_RulePage = module.default;
+    }, function (module) {
+      CenteredWindow = module.CenteredWindow;
     }],
     execute: function () {
-      var _dec, _class;
+      var _dec, _class, _class2;
       cclegacy._RF.push({}, "a3b4fr3dmVDJrKzBu9AkVDv", "Game_GamePage_Logic", undefined);
-      var Game_GamePage_Logic = exports('default', (_dec = addLogic(Game_GamePage), _dec(_class = /*#__PURE__*/function (_GUILogicBase) {
+      var Game_GamePage_Logic = exports('default', (_dec = addLogic(Game_GamePage), _dec(_class = (_class2 = /*#__PURE__*/function (_GUILogicBase) {
         _inheritsLoose(Game_GamePage_Logic, _GUILogicBase);
         function Game_GamePage_Logic() {
           return _GUILogicBase.apply(this, arguments) || this;
@@ -1146,7 +1148,9 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
           log('[Game_GamePage_Logic] UI绑定完成');
         };
         return Game_GamePage_Logic;
-      }(GUILogicBase)) || _class));
+      }(GUILogicBase), _class2.uiOptions = {
+        windowCls: CenteredWindow
+      }, _class2)) || _class));
       cclegacy._RF.pop();
     }
   };
