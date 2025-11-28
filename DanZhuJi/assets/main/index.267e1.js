@@ -2640,7 +2640,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             scene.on(REWARD_PAGE_CLOSED_EVENT, this.resetToInitial, this);
             log('[GameView] 已注册奖励弹框关闭事件监听');
           }
-          BackgroundAdapter.adaptBackground(this.bg);
+          this.scheduleOnce(function () {
+            BackgroundAdapter.adaptBackground(_this2.bg);
+          }, 0.1);
 
           // ========== 配置物理引擎确定性 ==========
           this.setupPhysicsDeterminism();
@@ -4570,7 +4572,7 @@ System.register("chunks:///_virtual/NetMgr.ts", ['./rollupPluginModLoBabelHelper
           }
           _this = _instance_base.call.apply(_instance_base, [this].concat(args)) || this;
           /** 环境配置表 */
-          _this.API_CONFIG = (_this$API_CONFIG = {}, _this$API_CONFIG[Environment.Test] = 'http://communitytest.best-envision.com/', _this$API_CONFIG[Environment.PreRelease] = 'https://community-api2.joyhub.net/', _this$API_CONFIG[Environment.Production] = 'https://community-api.joyhub.net/', _this$API_CONFIG);
+          _this.API_CONFIG = (_this$API_CONFIG = {}, _this$API_CONFIG[Environment.Test] = 'https://communitytest.best-envision.com/', _this$API_CONFIG[Environment.PreRelease] = 'https://community-api2.joyhub.net/', _this$API_CONFIG[Environment.Production] = 'https://community-api.joyhub.net/', _this$API_CONFIG);
           /** 当前环境 */
           _this.currentEnv = Environment.Test;
           /** 
@@ -5254,7 +5256,7 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
 });
 
 System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs', './TrajectoryData.ts', './GameDataMgr.ts', './GameConfig.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, UIConfig, registerFont, GRoot, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode;
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, GRoot, UIConfig, registerFont, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -5279,9 +5281,9 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
       BackgroundAdapter = module.BackgroundAdapter;
       GUIManager = module.GUIManager;
     }, null, function (module) {
+      GRoot = module.GRoot;
       UIConfig = module.UIConfig;
       registerFont = module.registerFont;
-      GRoot = module.GRoot;
     }, function (module) {
       log = module.log;
     }, function (module) {
@@ -5320,9 +5322,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
         _proto.onLoad = function onLoad() {
           // 读取并设置游戏模式（从URL参数）
           this.parseAndSetGameMode();
-
-          // fgui.GRoot.create();
-
+          GRoot.create();
           // fgui.UIConfig.buttonSound = "ui://MainMenu/click";
           UIConfig.buttonSoundVolumeScale = 1;
           UIConfig.bringWindowToFrontOnClick = false;
@@ -5376,19 +5376,21 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                 case 0:
                   AllBinder.bindAll();
                   _context3.prev = 1;
-                  GRoot.create();
+                  // fgui.GRoot.create();
+                  // this.scheduleOnce(() => {
                   BackgroundAdapter.adaptBackground(this.bg);
+                  // }, 0.1)
 
                   // ==================== 阶段1: 加载UI包 (0% - 40%) ====================
                   log('[StartView] 开始加载UI包...');
-                  _context3.next = 7;
+                  _context3.next = 6;
                   return GUIManager.loadPackage("Game", function (finish, total) {
                     var packageProgress = finish / total;
                     // UI包占总进度的 0-40%
                     var targetProgress = packageProgress * 0.4;
                     _this2.updateProgress(targetProgress, "加载UI资源");
                   });
-                case 7:
+                case 6:
                   log('[StartView] ✅ UI包加载完成');
 
                   // ==================== 阶段2: 并行加载游戏配置和预加载场景 (40% - 80%) ====================
@@ -5405,7 +5407,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                     var totalProgress = 0.4 + configProgress * 0.2 + sceneProgress * 0.2;
                     _this2.updateProgress(totalProgress, "加载中");
                   };
-                  _context3.next = 14;
+                  _context3.next = 13;
                   return Promise.all([
                   // 任务1: 加载游戏配置（自动判断Mock）
                   _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -5471,37 +5473,37 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                       }
                     }, _callee2);
                   }))()]);
-                case 14:
+                case 13:
                   _yield$Promise$all = _context3.sent;
                   loadSuccess = _yield$Promise$all[0];
                   if (loadSuccess) {
-                    _context3.next = 19;
+                    _context3.next = 18;
                     break;
                   }
                   log('[StartView] ❌ 游戏配置加载失败，无法启动游戏');
                   return _context3.abrupt("return");
-                case 19:
+                case 18:
                   log('[StartView] ✅ 游戏配置和场景预加载完成');
                   log('[StartView] 💡 游戏UI将在GameView.start()中打开');
 
                   // ==================== 阶段3: 预加载轨迹数据 (80% - 100%) ====================
                   log("开始加载轨迹数据...");
                   this.updateProgress(0.8, "加载轨迹数据");
-                  _context3.prev = 23;
-                  _context3.next = 26;
+                  _context3.prev = 22;
+                  _context3.next = 25;
                   return TrajectoryConfig.loadTrajectories();
-                case 26:
+                case 25:
                   log("轨迹数据加载完成！");
                   this.updateProgress(1.0, "加载完成");
-                  _context3.next = 35;
+                  _context3.next = 34;
                   break;
-                case 30:
-                  _context3.prev = 30;
-                  _context3.t0 = _context3["catch"](23);
+                case 29:
+                  _context3.prev = 29;
+                  _context3.t0 = _context3["catch"](22);
                   console.warn("轨迹数据加载失败:", _context3.t0);
                   log("⚠️ 轨迹数据加载失败，游戏将以录制模式启动");
                   this.updateProgress(1.0, "加载完成");
-                case 35:
+                case 34:
                   // ==================== 播放BGM ====================
                   try {
                     AudioUtil.playBGM(this.node, "Game", "bgm");
@@ -5524,10 +5526,10 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                       }
                     });
                   }, 0.5);
-                  _context3.next = 46;
+                  _context3.next = 45;
                   break;
-                case 41:
-                  _context3.prev = 41;
+                case 40:
+                  _context3.prev = 40;
                   _context3.t1 = _context3["catch"](1);
                   console.error("资源加载失败:", _context3.t1);
                   // 即使预加载失败，也尝试直接切换场景
@@ -5535,11 +5537,11 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
                   this.scheduleOnce(function () {
                     director.loadScene("game");
                   }, 1.0);
-                case 46:
+                case 45:
                 case "end":
                   return _context3.stop();
               }
-            }, _callee3, this, [[1, 41], [23, 30]]);
+            }, _callee3, this, [[1, 40], [22, 29]]);
           }));
           function start() {
             return _start.apply(this, arguments);
