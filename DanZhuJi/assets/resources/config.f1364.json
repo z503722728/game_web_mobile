@@ -73,41 +73,6 @@
             "cc.Material",
             1
         ],
-        "99fe84fe-b026-47f3-adff-1562c95ceced": [
-            "UI/Game",
-            "cc.BufferAsset",
-            1
-        ],
-        "d7334581-cf89-4d53-bd20-2b84e2f2e3d7": [
-            "UI/Game_atlas1",
-            "cc.ImageAsset",
-            1
-        ],
-        "d7334581-cf89-4d53-bd20-2b84e2f2e3d7@6c48a": [
-            "UI/Game_atlas1/texture",
-            "cc.Texture2D",
-            1
-        ],
-        "cb17909e-0be9-4bea-9950-1756e80a2eef": [
-            "UI/Game_atlas2",
-            "cc.ImageAsset",
-            1
-        ],
-        "cb17909e-0be9-4bea-9950-1756e80a2eef@6c48a": [
-            "UI/Game_atlas2/texture",
-            "cc.Texture2D",
-            1
-        ],
-        "28b785db-dc29-415a-abd3-68db9a059246": [
-            "UI/Game_atlas3",
-            "cc.ImageAsset",
-            1
-        ],
-        "28b785db-dc29-415a-abd3-68db9a059246@6c48a": [
-            "UI/Game_atlas3/texture",
-            "cc.Texture2D",
-            1
-        ],
         "4fff4cee-a769-430a-ae73-1ad204853474": [
             "trajectories/track_0-min",
             "cc.JsonAsset",
@@ -141,6 +106,41 @@
         "f7de592c-a6fa-47e1-b625-4ad0ce880013": [
             "trajectories/track_6-min",
             "cc.JsonAsset",
+            1
+        ],
+        "99fe84fe-b026-47f3-adff-1562c95ceced": [
+            "UI/Game",
+            "cc.BufferAsset",
+            1
+        ],
+        "d7334581-cf89-4d53-bd20-2b84e2f2e3d7": [
+            "UI/Game_atlas1",
+            "cc.ImageAsset",
+            1
+        ],
+        "d7334581-cf89-4d53-bd20-2b84e2f2e3d7@6c48a": [
+            "UI/Game_atlas1/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "cb17909e-0be9-4bea-9950-1756e80a2eef": [
+            "UI/Game_atlas2",
+            "cc.ImageAsset",
+            1
+        ],
+        "cb17909e-0be9-4bea-9950-1756e80a2eef@6c48a": [
+            "UI/Game_atlas2/texture",
+            "cc.Texture2D",
+            1
+        ],
+        "28b785db-dc29-415a-abd3-68db9a059246": [
+            "UI/Game_atlas3",
+            "cc.ImageAsset",
+            1
+        ],
+        "28b785db-dc29-415a-abd3-68db9a059246@6c48a": [
+            "UI/Game_atlas3/texture",
+            "cc.Texture2D",
             1
         ],
         "3b4d5005-76a9-444e-b0ae-7eede9c0a749": [

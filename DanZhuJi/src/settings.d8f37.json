@@ -30,7 +30,7 @@
         "customJointTextureLayouts": []
     },
     "assets": {
-        "server": "http://192.168.255.10:7456/build/web-mobile/",
+        "server": "",
         "remoteBundles": [],
         "subpackages": [],
         "preloadBundles": [
@@ -43,8 +43,8 @@
         ],
         "bundleVers": {
             "internal": "2b209",
-            "main": "c9649",
-            "resources": "6c919"
+            "main": "8e0af",
+            "resources": "f1364"
         },
         "preloadAssets": [],
         "projectBundles": [
@@ -59,7 +59,7 @@
     },
     "scripting": {
         "scriptPackages": [
-            "../src/chunks/bundle.ec929.js"
+            "../src/chunks/bundle.8fd2b.js"
         ]
     },
     "launch": {

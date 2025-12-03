@@ -68,403 +68,6 @@ System.register("chunks:///_virtual/AnimatedWindow.ts", ['./rollupPluginModLoBab
   };
 });
 
-System.register("chunks:///_virtual/AutoTester.ts", ['cc', './drongo-cc.mjs'], function (exports) {
-  var cclegacy, Label, Contact2DType, log;
-  return {
-    setters: [function (module) {
-      cclegacy = module.cclegacy;
-      Label = module.Label;
-      Contact2DType = module.Contact2DType;
-    }, function (module) {
-      log = module.log;
-    }],
-    execute: function () {
-      cclegacy._RF.push({}, "c296dPfzONAFJx2eNhkJe9N", "AutoTester", undefined);
-
-      /**
-       * 测试记录接口
-       */
-
-      /**
-       * 自动测试系统
-       * 负责自动化测试发射参数，为每个赛道收集有效配置
-       */
-      var AutoTester = exports('AutoTester', /*#__PURE__*/function () {
-        function AutoTester(gameView, ball, rewardColliders, trackCount) {
-          // 测试配置
-          this.TARGET_CONFIGS_PER_TRACK = 10;
-          this.TEST_FORCE_MIN = 400;
-          this.TEST_FORCE_MAX = 600;
-          this.TEST_ANGLE_MIN = -10;
-          this.TEST_ANGLE_MAX = 10;
-          // 测试数据
-          this.testRecords = new Map();
-          this.totalTestCount = 0;
-          this.successTestCount = 0;
-          this.isRunning = false;
-          // 当前测试状态
-          this.currentTestParams = null;
-          // 引用
-          this.gameView = void 0;
-          // GameView 实例（用于调用 resetGame）
-          this.ball = void 0;
-          this.rewardColliders = void 0;
-          // 奖励区域碰撞体数组
-          this.trackCount = void 0;
-          this.testButton = null;
-          // 测试时的碰撞监听
-          this.testCollisionHandlers = new Map();
-          this.currentHitTrackIndex = -1;
-          // 当前测试命中的赛道
-          // 回调函数
-          this.onTestComplete = null;
-          this.gameView = gameView;
-          this.ball = ball;
-          this.rewardColliders = rewardColliders;
-          this.trackCount = trackCount;
-          this.initTestRecords();
-        }
-
-        /**
-         * 设置测试按钮
-         */
-        var _proto = AutoTester.prototype;
-        _proto.setButton = function setButton(button) {
-          this.testButton = button;
-        }
-
-        /**
-         * 设置测试完成回调
-         */;
-        _proto.setOnTestComplete = function setOnTestComplete(callback) {
-          this.onTestComplete = callback;
-        }
-
-        /**
-         * 初始化测试记录
-         */;
-        _proto.initTestRecords = function initTestRecords() {
-          for (var i = 0; i < this.trackCount; i++) {
-            this.testRecords.set(i, []);
-          }
-          log('[AutoTester] 测试记录已初始化，赛道数:', this.trackCount);
-        }
-
-        /**
-         * 开始/停止测试（切换）
-         */;
-        _proto.toggle = function toggle() {
-          if (this.isRunning) {
-            this.stop();
-          } else {
-            this.start();
-          }
-        }
-
-        /**
-         * 开始自动测试
-         */;
-        _proto.start = function start() {
-          var _this = this;
-          log('[AutoTester] ==================== 开始自动测试 ====================');
-          this.isRunning = true;
-          this.totalTestCount = 0;
-          this.successTestCount = 0;
-
-          // 清空之前的测试记录
-          this.initTestRecords();
-
-          // 注册测试用的碰撞监听
-          this.registerTestCollisionListeners();
-          this.updateButtonText('停止测试');
-
-          // 延迟启动第一个测试
-          this.gameView.scheduleOnce(function () {
-            _this.runNextTest();
-          }, 0.5);
-        }
-
-        /**
-         * 停止测试
-         */;
-        _proto.stop = function stop() {
-          log('[AutoTester] ==================== 停止自动测试 ====================');
-          this.isRunning = false;
-
-          // 移除测试用的碰撞监听
-          this.unregisterTestCollisionListeners();
-          this.updateButtonText('开始自动测试');
-          this.printProgress();
-
-          // 手动停止时也导出当前已收集的配置
-          if (this.successTestCount > 0) {
-            this.exportResults();
-          }
-          log('[AutoTester] 测试已手动停止');
-        }
-
-        /**
-         * 是否正在运行
-         */;
-        _proto.isActive = function isActive() {
-          return this.isRunning;
-        }
-
-        /**
-         * 运行下一次测试（随机发射，看命中哪个赛道）
-         */;
-        _proto.runNextTest = function runNextTest() {
-          if (!this.isRunning) {
-            return;
-          }
-          if (this.isTestComplete()) {
-            this.complete();
-            return;
-          }
-
-          // 重置命中记录
-          this.currentHitTrackIndex = -1;
-          this.currentTestParams = this.generateRandomParams();
-          this.totalTestCount++;
-          log("[AutoTester] \u6D4B\u8BD5 #" + this.totalTestCount + " - \u529B\u5EA6:" + this.currentTestParams.force.toFixed(2) + ", \u89D2\u5EA6:" + this.currentTestParams.angleOffset.toFixed(2) + "\xB0");
-
-          // 触发 GameView 的测试流程
-          this.gameView.runAutoTest();
-        }
-
-        /**
-         * 获取当前测试参数（供外部发射使用）
-         */;
-        _proto.getCurrentTestParams = function getCurrentTestParams() {
-          if (!this.currentTestParams) {
-            return null;
-          }
-          return {
-            params: this.currentTestParams
-          };
-        }
-
-        /**
-         * 处理测试结果（命中赛道时立即调用）
-         */;
-        _proto.handleTestResult = function handleTestResult() {
-          if (!this.currentTestParams || !this.isRunning) {
-            return;
-          }
-
-          // currentHitTrackIndex 在碰撞监听器中已设置
-          if (this.currentHitTrackIndex >= 0 && this.currentHitTrackIndex < this.trackCount) {
-            var records = this.testRecords.get(this.currentHitTrackIndex);
-
-            // 只有该赛道配置未满时才记录
-            if (records && records.length < this.TARGET_CONFIGS_PER_TRACK) {
-              this.successTestCount++;
-              var record = {
-                force: this.currentTestParams.force,
-                angleOffset: this.currentTestParams.angleOffset,
-                targetTrack: this.currentHitTrackIndex,
-                timestamp: Date.now()
-              };
-              records.push(record);
-              log("[AutoTester] \u2713 \u547D\u4E2D\u8D5B\u9053" + this.currentHitTrackIndex + "\uFF0C\u8BE5\u8D5B\u9053\u5DF2\u6536\u96C6 " + records.length + "/" + this.TARGET_CONFIGS_PER_TRACK + " \u4E2A\u914D\u7F6E");
-            } else {
-              log("[AutoTester] \u25CB \u547D\u4E2D\u8D5B\u9053" + this.currentHitTrackIndex + "\uFF0C\u4F46\u8BE5\u8D5B\u9053\u914D\u7F6E\u5DF2\u6EE1\uFF0C\u8DF3\u8FC7");
-            }
-          }
-
-          // 每10次测试打印一次进度
-          if (this.totalTestCount % 10 === 0) {
-            this.printProgress();
-          }
-
-          // 延迟后继续下一个测试（给小球一点时间减速，避免物理引擎混乱）
-          this.scheduleNextTest();
-        }
-
-        /**
-         * 处理小球弹回初始位置的情况
-         */;
-        _proto.handleBounceback = function handleBounceback() {
-          if (!this.isRunning) {
-            return;
-          }
-          log('[AutoTester] ⚠ 小球被弹回，不计入统计，重新发射');
-
-          // 弹回不算成功也不算失败，直接重新发射
-          this.scheduleNextTest();
-        }
-
-        /**
-         * 调度下一个测试
-         */;
-        _proto.scheduleNextTest = function scheduleNextTest() {
-          var _this2 = this;
-          this.gameView.scheduleOnce(function () {
-            _this2.runNextTest();
-          }, 0.5);
-        }
-
-        /**
-         * 生成随机测试参数（保留2位小数）
-         */;
-        _proto.generateRandomParams = function generateRandomParams() {
-          var force = Math.random() * (this.TEST_FORCE_MAX - this.TEST_FORCE_MIN) + this.TEST_FORCE_MIN;
-          var angleOffset = Math.random() * (this.TEST_ANGLE_MAX - this.TEST_ANGLE_MIN) + this.TEST_ANGLE_MIN;
-
-          // 保留2位小数，防止数值差距太大
-          return {
-            force: parseFloat(force.toFixed(2)),
-            angleOffset: parseFloat(angleOffset.toFixed(2))
-          };
-        }
-
-        /**
-         * 检查是否完成
-         */;
-        _proto.isTestComplete = function isTestComplete() {
-          var _this3 = this;
-          var allComplete = true;
-          this.testRecords.forEach(function (records) {
-            if (records.length < _this3.TARGET_CONFIGS_PER_TRACK) {
-              allComplete = false;
-            }
-          });
-          return allComplete;
-        }
-
-        /**
-         * 完成测试
-         */;
-        _proto.complete = function complete() {
-          log('[AutoTester] ==================== 测试完成 ====================');
-          this.isRunning = false;
-
-          // 移除测试用的碰撞监听
-          this.unregisterTestCollisionListeners();
-          this.updateButtonText('开始自动测试');
-          this.printProgress();
-          this.exportResults();
-          if (this.onTestComplete) {
-            this.onTestComplete(this.testRecords);
-          }
-        }
-
-        /**
-         * 打印进度
-         */;
-        _proto.printProgress = function printProgress() {
-          var _this4 = this;
-          var progressStr = '[AutoTester] 测试进度: ';
-          this.testRecords.forEach(function (records, trackId) {
-            progressStr += "\u8D5B\u9053" + trackId + "(" + records.length + "/" + _this4.TARGET_CONFIGS_PER_TRACK + ") ";
-          });
-          log(progressStr);
-          var successRate = this.totalTestCount > 0 ? (this.successTestCount / this.totalTestCount * 100).toFixed(1) : '0.0';
-          log("[AutoTester] \u603B\u6D4B\u8BD5:" + this.totalTestCount + " \u6B21, \u6210\u529F:" + this.successTestCount + " \u6B21, \u6210\u529F\u7387:" + successRate + "%");
-        }
-
-        /**
-         * 导出结果到控制台（TypeScript格式 - 二维数组）
-         */;
-        _proto.exportResults = function exportResults() {
-          var _this5 = this;
-          log('[AutoTester] ==================== 导出结果 ====================');
-          var now = new Date();
-          var timeStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0') + "-" + String(now.getDate()).padStart(2, '0') + " " + String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0') + ":" + String(now.getSeconds()).padStart(2, '0');
-          var successRate = (this.successTestCount / this.totalTestCount * 100).toFixed(1);
-          var output = '\n// ========== 自动测试生成的配置 ==========\n';
-          output += "// \u6D4B\u8BD5\u7EDF\u8BA1: \u603B\u6D4B\u8BD5 " + this.totalTestCount + " \u6B21, \u6210\u529F " + this.successTestCount + " \u6B21, \u6210\u529F\u7387 " + successRate + "%\n";
-          output += "// \u751F\u6210\u65F6\u95F4: " + timeStr + "\n";
-          output += "// \u6BCF\u4E2A\u8D5B\u9053\u914D\u7F6E\u6570: " + this.TARGET_CONFIGS_PER_TRACK + " \u7EC4\n";
-          output += "// \u4F7F\u7528\u65F6\u4F1A\u4ECE\u6BCF\u4E2A\u8D5B\u9053\u7684\u914D\u7F6E\u4E2D\u968F\u673A\u9009\u62E9\u4E00\u7EC4\n\n";
-          output += 'private static readonly PRESETS: LaunchPreset[][] = [\n';
-          var sortedTracks = Array.from(this.testRecords.keys()).sort(function (a, b) {
-            return a - b;
-          });
-          sortedTracks.forEach(function (trackId, trackIndex) {
-            var records = _this5.testRecords.get(trackId) || [];
-            output += "    // \u8D5B\u9053" + trackId + " - " + records.length + "\u7EC4\u914D\u7F6E\n";
-            output += '    [\n';
-            records.forEach(function (record, index) {
-              var comma = index === records.length - 1 ? '' : ',';
-              output += "        { force: " + record.force.toFixed(2) + ", angleOffset: " + record.angleOffset.toFixed(2) + " }" + comma + "\n";
-            });
-            var trackComma = trackIndex === sortedTracks.length - 1 ? '' : ',';
-            output += "    ]" + trackComma + "\n";
-            if (trackIndex !== sortedTracks.length - 1) {
-              output += '\n';
-            }
-          });
-          output += '];\n';
-          output += '\n// ========== 复制上面的代码替换 LaunchConfig.ts 中的 PRESETS 数组 ==========\n';
-          console.log(output);
-          log('[AutoTester] 配置已导出到控制台，请复制到 LaunchConfig.ts');
-        }
-
-        /**
-         * 更新按钮文字
-         */;
-        _proto.updateButtonText = function updateButtonText(text) {
-          if (!this.testButton) return;
-          var btnLabel = this.testButton.node.getComponentInChildren(Label);
-          if (btnLabel) {
-            btnLabel.string = text;
-          }
-        }
-
-        /**
-         * 重置游戏（用于测试）
-         * 直接调用 GameView 的 resetGame，避免代码重复
-         */;
-        _proto.resetGameForTest = function resetGameForTest() {
-          this.gameView.resetGameForAutoTest();
-        }
-
-        /**
-         * 注册测试用的碰撞监听（直接在奖励区域碰撞体上）
-         */;
-        _proto.registerTestCollisionListeners = function registerTestCollisionListeners() {
-          var _this6 = this;
-          this.rewardColliders.forEach(function (collider, trackIndex) {
-            if (!collider || !collider.isValid) {
-              return;
-            }
-            var handler = function handler(selfCollider, otherCollider) {
-              // 只在测试运行时且尚未记录命中时生效
-              if (_this6.isRunning && _this6.currentHitTrackIndex === -1) {
-                _this6.currentHitTrackIndex = trackIndex;
-                log("[AutoTester] [\u78B0\u649E\u68C0\u6D4B] \u547D\u4E2D\u8D5B\u9053" + trackIndex);
-
-                // 立即处理测试结果，不等小球停止
-                _this6.handleTestResult();
-              }
-            };
-            collider.on(Contact2DType.BEGIN_CONTACT, handler, _this6);
-            _this6.testCollisionHandlers.set(collider, handler);
-          });
-          log('[AutoTester] 测试用碰撞监听已注册');
-        }
-
-        /**
-         * 移除测试用的碰撞监听
-         */;
-        _proto.unregisterTestCollisionListeners = function unregisterTestCollisionListeners() {
-          var _this7 = this;
-          this.testCollisionHandlers.forEach(function (handler, collider) {
-            if (collider && collider.isValid) {
-              collider.off(Contact2DType.BEGIN_CONTACT, handler, _this7);
-            }
-          });
-          this.testCollisionHandlers.clear();
-          log('[AutoTester] 测试用碰撞监听已移除');
-        };
-        return AutoTester;
-      }());
-      cclegacy._RF.pop();
-    }
-  };
-});
-
 System.register("chunks:///_virtual/BallPhysicsConfig.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './ConfigBase.ts'], function (exports) {
   var _inheritsLoose, cclegacy, ConfigBase;
   return {
@@ -2459,8 +2062,8 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
   };
 });
 
-System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './AutoTester.ts', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts', './TrajectoryRecorder.ts', './TrajectoryPlayer.ts', './TrajectoryData.ts', './GameDataMgr.ts', './NetMgr.ts', './MultiplierControl.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_GamePage.ts', './GameConfig.ts', './UIUtil.ts', './RewardScoreAnimator.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, AutoTester, ballPhysicsConfig, BackgroundAdapter, GUIManager, AudioUtil, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator;
+System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts', './TrajectoryRecorder.ts', './TrajectoryPlayer.ts', './TrajectoryData.ts', './GameDataMgr.ts', './NetMgr.ts', './MultiplierControl.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_GamePage.ts', './GameConfig.ts', './UIUtil.ts', './RewardScoreAnimator.ts'], function (exports) {
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, ballPhysicsConfig, BackgroundAdapter, GUIManager, AudioUtil, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -2493,8 +2096,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
       Component = module.Component;
     }, function (module) {
       log = module.log;
-    }, function (module) {
-      AutoTester = module.AutoTester;
     }, function (module) {
       ballPhysicsConfig = module.ballPhysicsConfig;
     }, function (module) {
@@ -2532,7 +2133,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
       RewardScoreAnimator = module.RewardScoreAnimator;
     }],
     execute: function () {
-      var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _dec13, _dec14, _dec15, _dec16, _dec17, _dec18, _dec19, _dec20, _class, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19;
+      var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _dec13, _dec14, _dec15, _dec16, _dec17, _dec18, _dec19, _class, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18;
       cclegacy._RF.push({}, "d57e3ArPSBD/Irqo5u90c1c", "GameView", undefined);
       var ccclass = _decorator.ccclass,
         property = _decorator.property;
@@ -2544,7 +2145,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         BallState[BallState["FLYING"] = 2] = "FLYING";
         return BallState;
       }(BallState || {});
-      var GameView = exports('GameView', (_dec = ccclass('GameView'), _dec2 = property(RigidBody2D), _dec3 = property(Button), _dec4 = property(UITransform), _dec5 = property([Collider2D]), _dec6 = property([Collider2D]), _dec7 = property([Collider2D]), _dec8 = property(Node), _dec9 = property(Node), _dec10 = property(Button), _dec11 = property(Label), _dec12 = property(Button), _dec13 = property(Button), _dec14 = property(Label), _dec15 = property(Label), _dec16 = property(Label), _dec17 = property([Label]), _dec18 = property(Button), _dec19 = property(Button), _dec20 = property(Button), _dec(_class = (_class2 = /*#__PURE__*/function (_Component) {
+      var GameView = exports('GameView', (_dec = ccclass('GameView'), _dec2 = property(RigidBody2D), _dec3 = property(Button), _dec4 = property(UITransform), _dec5 = property([Collider2D]), _dec6 = property([Collider2D]), _dec7 = property([Collider2D]), _dec8 = property(Node), _dec9 = property(Node), _dec10 = property(Button), _dec11 = property(Label), _dec12 = property(Button), _dec13 = property(Button), _dec14 = property(Label), _dec15 = property(Label), _dec16 = property(Label), _dec17 = property([Label]), _dec18 = property(Button), _dec19 = property(Button), _dec(_class = (_class2 = /*#__PURE__*/function (_Component) {
         _inheritsLoose(GameView, _Component);
         function GameView() {
           var _this;
@@ -2572,8 +2173,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           _initializerDefineProperty(_this, "SaiDaoLabels", _descriptor16, _assertThisInitialized(_this));
           // test
           _initializerDefineProperty(_this, "ResetGameBtn", _descriptor17, _assertThisInitialized(_this));
-          _initializerDefineProperty(_this, "AutoTestBtn", _descriptor18, _assertThisInitialized(_this));
-          _initializerDefineProperty(_this, "CanshuBtn", _descriptor19, _assertThisInitialized(_this));
+          _initializerDefineProperty(_this, "CanshuBtn", _descriptor18, _assertThisInitialized(_this));
           // ========== 状态管理 ==========
           _this.ballState = BallState.IDLE;
           // ========== 蓄力系统参数 ==========
@@ -2583,8 +2183,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           // 最大蓄力值
           _this.chargeSpeed = 0.8;
           // 每秒蓄力速度
-          _this.minXuLiScale = 0.7;
-          // 蓄力节点最小缩放（完全蓄满）
           // ========== 发射系统参数 ==========
           // 发射参数由 LaunchConfig 管理
           // ========== 碰撞系统参数（从配置读取） ==========
@@ -2605,11 +2203,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           // 低速帧计数器
           _this.STOP_CONFIRM_FRAMES = 30;
           // 需要连续30帧低速才确认停止（0.5秒）
-          // ========== 自动测试系统 ==========
-          _this.autoTester = null;
-          // 自动测试
-          _this.lastHitTrackIndex = -1;
-          // 最后命中的赛道索引
           // ========== 轨迹录播系统 ==========
           // 游戏模式统一使用 GameConfig.CURRENT_GAME_MODE，不再使用实例属性
           // 修改游戏模式请到 assets/script/Game/GameConfig.ts
@@ -2648,6 +2241,11 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             BackgroundAdapter.adaptBackground(_this2.bg);
           }, 0.1);
 
+          // 初始化蓄力条高度为0
+          if (this.XuLiNode) {
+            this.XuLiNode.height = 0;
+          }
+
           // ========== 配置物理引擎确定性 ==========
           this.setupPhysicsDeterminism();
 
@@ -2682,11 +2280,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             this.ResetGameBtn.node.on(Button.EventType.CLICK, this.onResetBtnClick, this);
           }
 
-          // 注册自动测试按钮
-          if (this.AutoTestBtn) {
-            this.AutoTestBtn.node.on(Button.EventType.CLICK, this.onAutoTestBtnClick, this);
-          }
-
           // 注册参数设置按钮
           if (this.CanshuBtn) {
             this.CanshuBtn.node.on(Button.EventType.CLICK, this.onCanshuBtnClick, this);
@@ -2696,14 +2289,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           this.registerRewardCollisionListeners();
           this.registerAnimaCollisionListeners();
           this.registerDropWayCollisionListeners();
-
-          // 初始化自动测试器
-          this.autoTester = new AutoTester(this, this.Ball, this.JiangLiColliders,
-          // 传入奖励碰撞体数组
-          this.JiangLiColliders.length);
-          if (this.AutoTestBtn) {
-            this.autoTester.setButton(this.AutoTestBtn);
-          }
 
           // ========== 初始化轨迹录播系统 ==========
           this.trajectoryRecorder = new TrajectoryRecorder(this.Ball);
@@ -2746,9 +2331,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           }
           if (this.ResetGameBtn) {
             this.ResetGameBtn.node.off(Button.EventType.CLICK, this.onResetBtnClick, this);
-          }
-          if (this.AutoTestBtn) {
-            this.AutoTestBtn.node.off(Button.EventType.CLICK, this.onAutoTestBtnClick, this);
           }
           if (this.CanshuBtn) {
             this.CanshuBtn.node.off(Button.EventType.CLICK, this.onCanshuBtnClick, this);
@@ -2861,11 +2443,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                 // 显示奖励弹框（如果有服务器结果）
                 if (this.serverResult && gameDataMgr.gameState === GameState.PLAYING) {
                   this.showRewardPopup(this.serverResult);
-                }
-
-                // 自动测试模式下，检查是否弹回到初始位置（可能被挡板弹回）
-                if (this.autoTester && this.autoTester.isActive()) {
-                  this.checkAndHandleBounceback();
                 }
               }
             } else {
@@ -3001,67 +2578,22 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           log('[GameView] [测试] 点击重置按钮');
           this.resetGame();
         };
-        _proto.onAutoTestBtnClick = function onAutoTestBtnClick() {
-          if (!this.autoTester) {
-            log('[GameView] 自动测试器未初始化');
-            return;
-          }
-          if (this.autoTester.isActive()) {
-            this.autoTester.stop();
-          } else {
-            this.autoTester.start();
-          }
-        };
         _proto.onCanshuBtnClick = function onCanshuBtnClick() {
           log('[GameView] 打开参数设置面板');
           GUIManager.open(Game_TestView);
-        };
-        _proto.runAutoTest = function runAutoTest() {
-          // AutoTester 已废弃，改用轨迹录播系统
-          // 请使用: 按键1-7选择赛道 → 按键R准备录制 → 发射小球
-          log('[GameView] ⚠️ AutoTester 已废弃');
-          log('[GameView] 💡 请使用轨迹录播系统：');
-          log('[GameView]    1. 按键P切换到物理模式');
-          log('[GameView]    2. 按键1-7选择目标赛道');
-          log('[GameView]    3. 按键R准备录制');
-          log('[GameView]    4. 发射小球开始录制');
-          log('[GameView]    5. 小球停止后自动保存轨迹');
-        }
-
-        /**
-         * 供 AutoTester 调用的同步重置方法
-         */;
-        _proto.resetGameForAutoTest = function resetGameForAutoTest() {
-          log('[GameView] [AutoTest] 重置游戏');
-
-          // 切换状态
-          this.ballState = BallState.IDLE;
-          this.chargeValue = 0;
-          this.lowSpeedFrameCount = 0; // 重置低速帧计数
-          this.resetXuLiUI();
-          this.hasEnteredRewardZone = false;
-          this.lastHitTrackIndex = -1;
-
-          // 立即重置小球
-          if (this.Ball && this.Ball.isValid) {
-            this.Ball.linearVelocity = v2(0, 0);
-            this.Ball.angularVelocity = 0;
-            this.Ball.node.setPosition(this.initialBallPosition);
-            this.Ball.node.setRotationFromEuler(this.initialBallRotation);
-            this.restoreBallPhysics();
-          }
         }
 
         // ========== 蓄力UI更新 ==========
         ;
 
         _proto.updateXuLiUI = function updateXuLiUI() {
-          // 高度随蓄力值线性缩小
-          var scaleY = 1.0 - this.chargeValue * (1.0 - this.minXuLiScale);
-          this.XuLiNode.node.setScale(this.XuLiNode.node.scale.x, scaleY, this.XuLiNode.node.scale.z);
+          // 高度随蓄力值线性增加 (0 -> 228)
+          var maxHeight = 228;
+          this.XuLiNode.height = this.chargeValue * maxHeight;
         };
         _proto.resetXuLiUI = function resetXuLiUI() {
           this.XuLiNode.node.setScale(1, 1, 1);
+          this.XuLiNode.height = 0;
         }
 
         // ========== 发射系统 ==========
@@ -3400,7 +2932,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             return;
           }
           this.hasEnteredRewardZone = true;
-          this.lastHitTrackIndex = trackIndex; // 记录命中的赛道
           log('[GameView] 进入奖励区域，赛道索引:', trackIndex);
 
           // 显示对应的奖励光柱
@@ -3609,28 +3140,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           }
         }
 
-        /**
-         * 检查并处理小球弹回初始位置的情况
-         */;
-        _proto.checkAndHandleBounceback = function checkAndHandleBounceback() {
-          var _this8 = this;
-          var currentPos = this.Ball.node.position;
-          var distance = Vec3.distance(currentPos, this.initialBallPosition);
-
-          // 如果距离初始位置很近（50单位内），说明被弹回来了
-          var bouncebackThreshold = 50;
-          if (distance < bouncebackThreshold) {
-            log('[GameView] [警告] 小球弹回初始位置，距离:', distance.toFixed(2), '重新发射');
-
-            // 延迟后重新触发自动测试
-            this.scheduleOnce(function () {
-              if (_this8.autoTester && _this8.autoTester.isActive()) {
-                _this8.autoTester.handleBounceback();
-              }
-            }, 0.3);
-          }
-        }
-
         // ========== 物理配置应用 ==========
 
         /**
@@ -3688,7 +3197,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         _proto.showRewardPopup = /*#__PURE__*/
         function () {
           var _showRewardPopup = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(result) {
-            var _this9 = this;
+            var _this8 = this;
             var _config$trac_list, basePoints, finalPoints, trackId, config, multiplier, ui, logic, isWin;
             return _regeneratorRuntime().wrap(function _callee5$(_context5) {
               while (1) switch (_context5.prev = _context5.next) {
@@ -3708,7 +3217,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   multiplier = (config == null || (_config$trac_list = config.trac_list) == null || (_config$trac_list = _config$trac_list[trackId]) == null ? void 0 : _config$trac_list.rate) || 1; // 使用 Promise 等待动画完成
                   _context5.next = 9;
                   return new Promise(function (resolve) {
-                    _this9.rewardScoreAnimator.playMultiplyAnimation(basePoints, multiplier, finalPoints, function () {
+                    _this8.rewardScoreAnimator.playMultiplyAnimation(basePoints, multiplier, finalPoints, function () {
                       log('[GameView] 计分板动画已完成，准备显示弹框');
                       resolve();
                     });
@@ -3830,23 +3339,23 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           log('[GameView] 保存初始属性 - 初始弹性:', this.initialBallRestitution, '位置:', this.initialBallPosition);
         };
         _proto.restoreBallPhysics = function restoreBallPhysics() {
-          var _this10 = this;
+          var _this9 = this;
           if (!this.Ball) return;
 
           // 延迟重置，避免在碰撞回调中操作物理引擎导致空引用
           this.scheduleOnce(function () {
-            if (!_this10.Ball || !_this10.Ball.isValid) {
+            if (!_this9.Ball || !_this9.Ball.isValid) {
               return;
             }
 
             // ========== 方案1：激进重置（推荐）==========
             // 先禁用再启用，清除物理引擎内部状态
-            _this10.Ball.enabled = false;
-            var ballCollider = _this10.Ball.getComponent(Collider2D);
+            _this9.Ball.enabled = false;
+            var ballCollider = _this9.Ball.getComponent(Collider2D);
             if (ballCollider) {
               // 恢复为0，等待下次发射时再设置为0.9
               ballCollider.restitution = 0;
-              ballCollider.friction = _this10.initialBallFriction;
+              ballCollider.friction = _this9.initialBallFriction;
 
               // 恢复密度（影响质量）
               var density = ballPhysicsConfig.getBallMass();
@@ -3854,23 +3363,23 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
               ballCollider.apply(); // 立即应用
             }
 
-            _this10.Ball.linearDamping = _this10.initialBallLinearDamping;
-            _this10.Ball.angularDamping = _this10.initialBallAngularDamping;
+            _this9.Ball.linearDamping = _this9.initialBallLinearDamping;
+            _this9.Ball.angularDamping = _this9.initialBallAngularDamping;
 
             // ⚠️ 确保完全停止（确定性关键）
-            _this10.Ball.linearVelocity = v2(0, 0);
-            _this10.Ball.angularVelocity = 0;
+            _this9.Ball.linearVelocity = v2(0, 0);
+            _this9.Ball.angularVelocity = 0;
 
             // 重新启用（这会重新初始化物理状态）
-            _this10.Ball.enabled = true;
+            _this9.Ball.enabled = true;
 
             // 重新注册碰撞监听器（因为禁用/启用会清除监听器）
-            _this10.reRegisterBallCollisionListener();
+            _this9.reRegisterBallCollisionListener();
             log('[GameView] 恢复初始物理属性（完全重置）');
           }, 0);
         };
         _proto.resetGame = function resetGame() {
-          var _this11 = this;
+          var _this10 = this;
           log('[GameView] 重置游戏');
 
           // 先切换状态，避免碰撞回调处理
@@ -3879,7 +3388,6 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           this.resetXuLiUI();
           this.debugTargetTrack = -1;
           this.hasEnteredRewardZone = false;
-          this.lastHitTrackIndex = -1; // 重置赛道记录
 
           // 重置小球
           if (this.Ball) {
@@ -3890,25 +3398,25 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             // ========== 延迟重置：让物理引擎完全稳定 ==========
             // 延迟3帧再重置位置，确保物理引擎完全稳定
             this.scheduleOnce(function () {
-              if (_this11.Ball && _this11.Ball.isValid) {
+              if (_this10.Ball && _this10.Ball.isValid) {
                 // 重置位置和旋转
-                _this11.Ball.node.setPosition(_this11.initialBallPosition);
-                _this11.Ball.node.setRotationFromEuler(_this11.initialBallRotation);
+                _this10.Ball.node.setPosition(_this10.initialBallPosition);
+                _this10.Ball.node.setRotationFromEuler(_this10.initialBallRotation);
 
                 // 再次清除速度（确保位置重置后速度为0）
-                _this11.Ball.linearVelocity = v2(0, 0);
-                _this11.Ball.angularVelocity = 0;
+                _this10.Ball.linearVelocity = v2(0, 0);
+                _this10.Ball.angularVelocity = 0;
 
                 // 恢复初始物理属性（会禁用再启用 RigidBody）
-                _this11.restoreBallPhysics();
+                _this10.restoreBallPhysics();
 
                 // ========== 最后一步：等待物理引擎同步 ==========
                 // 再等待2帧，让物理引擎完全同步新状态
-                _this11.scheduleOnce(function () {
-                  if (_this11.Ball && _this11.Ball.isValid) {
+                _this10.scheduleOnce(function () {
+                  if (_this10.Ball && _this10.Ball.isValid) {
                     // 最后一次确保速度为0
-                    _this11.Ball.linearVelocity = v2(0, 0);
-                    _this11.Ball.angularVelocity = 0;
+                    _this10.Ball.linearVelocity = v2(0, 0);
+                    _this10.Ball.angularVelocity = 0;
                     log('[GameView] 游戏已重置，物理状态已稳定');
                   }
                 }, 0.05); // 等待3帧（约50ms）
@@ -4139,7 +3647,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
          * 针对 6 个箭头优化：消除首尾等待感，实现首尾相接的无缝流动
          */;
         _proto.playArrowFlowAnimation = function playArrowFlowAnimation() {
-          var _this12 = this;
+          var _this11 = this;
           if (!this.ArrawNode || !this.ArrawNode.isValid) return;
           this.stopArrowFlowAnimation();
 
@@ -4193,7 +3701,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             .sequence(oneLoop) // 播放第一次
             .repeatForever() // 无限重复
             .start();
-            _this12.arrowFlowTweens.push(mainTween);
+            _this11.arrowFlowTweens.push(mainTween);
           });
           console.log("[GameView] \uD83C\uDF0A \u8FDE\u8D2F\u6D41\u5149\u542F\u52A8: \u5468\u671F" + cycleDuration.toFixed(2) + "s");
         }
@@ -4416,12 +3924,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         enumerable: true,
         writable: true,
         initializer: null
-      }), _descriptor18 = _applyDecoratedDescriptor(_class2.prototype, "AutoTestBtn", [_dec19], {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        initializer: null
-      }), _descriptor19 = _applyDecoratedDescriptor(_class2.prototype, "CanshuBtn", [_dec20], {
+      }), _descriptor18 = _applyDecoratedDescriptor(_class2.prototype, "CanshuBtn", [_dec19], {
         configurable: true,
         enumerable: true,
         writable: true,
@@ -4432,9 +3935,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
   };
 });
 
-System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './AutoTester.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
+System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
   return {
-    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     execute: function () {}
   };
 });
@@ -5259,8 +4762,8 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
   };
 });
 
-System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs', './TrajectoryData.ts', './GameDataMgr.ts', './GameConfig.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, GRoot, UIConfig, registerFont, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode;
+System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs', './TrajectoryData.ts', './GameDataMgr.ts', './GameConfig.ts', './NetMgr.ts', './NetTypes.ts'], function (exports) {
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, GRoot, UIConfig, registerFont, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode, netMgr, Environment;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -5298,6 +4801,10 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
       setGameMode = module.setGameMode;
       GameMode = module.GameMode;
       getCurrentGameMode = module.getCurrentGameMode;
+    }, function (module) {
+      netMgr = module.netMgr;
+    }, function (module) {
+      Environment = module.Environment;
     }],
     execute: function () {
       var _dec, _dec2, _dec3, _class, _class2, _descriptor, _descriptor2, _descriptor3;
@@ -5343,7 +4850,8 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
 
         /**
          * 解析URL参数并设置游戏模式
-         * 例如: ?GameMode=PLAYBACK 或 ?GameMode=RECORDING
+         * 优先检查 token 参数，如果存在则强制设为 PLAYBACK 模式并设置 NetMgr
+         * 否则检查 GameMode 参数
          */;
         _proto.parseAndSetGameMode = function parseAndSetGameMode() {
           if (typeof window === 'undefined') {
@@ -5352,6 +4860,38 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
           }
           try {
             var urlParams = new URLSearchParams(window.location.search);
+
+            // 1. 优先检查 token 参数
+            var token = urlParams.get('token');
+            if (token) {
+              log('[StartView] ✅ 检测到Token参数，强制设置为 PLAYBACK 模式');
+
+              // 设置 Token
+              netMgr.setToken(token);
+
+              // 检查 env 参数
+              var env = urlParams.get('env');
+              if (env) {
+                // 简单的字符串映射到枚举
+                var targetEnv = Environment.Test;
+                var lowerEnv = env.toLowerCase();
+                if (lowerEnv === 'production' || lowerEnv === 'prod') {
+                  targetEnv = Environment.Production;
+                } else if (lowerEnv === 'prerelease' || lowerEnv === 'pre') {
+                  targetEnv = Environment.PreRelease;
+                } else {
+                  targetEnv = Environment.Test;
+                }
+                netMgr.setEnvironment(targetEnv);
+                log('[StartView] ✅ 从URL设置环境为:', targetEnv);
+              }
+
+              // 强制设置为 PLAYBACK 模式
+              setGameMode(GameMode.PLAYBACK);
+              return;
+            }
+
+            // 2. 如果没有 token，则检查 GameMode 参数
             var gameModeParam = urlParams.get('GameMode');
             if (gameModeParam) {
               var upperParam = gameModeParam.toUpperCase();
