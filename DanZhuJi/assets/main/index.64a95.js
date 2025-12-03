@@ -2043,7 +2043,7 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
           log('  - 游戏后积分:', result.current_points);
           log('  - 消耗积分:', result.deducted_points);
           log('  - 剩余能量:', this.dLocalData.energy, '/', this.dLocalData.energyDaily);
-          log('  - 进入赛道:', result.round_result);
+          log('  - 进入赛道:', result.win_trac_id);
           log('  - 赢得积分:', result.win_points, '(', result.win_points === '0' ? '失败' : '胜利', ')');
         }
 
@@ -2542,7 +2542,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     }
 
                     log('[GameView] ✅ [游戏模式] 投币成功，可以发射');
-                    log('[GameView] 目标赛道:', response.data.round_result);
+                    log('[GameView] 目标赛道:', response.data.win_trac_id);
                   } else {
                     log('[GameView] ❌ [游戏模式] 投币失败:', response.msg);
                   }
@@ -2735,7 +2735,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
 
         /**
          * 获取服务器结果（从已保存的结果中获取）
-         * @returns 目标赛道ID (0-6)
+         * @returns 目标赛道ID (1-7)
          */;
         _proto.requestServerResult = /*#__PURE__*/
         function () {
@@ -2748,8 +2748,8 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     _context4.next = 4;
                     break;
                   }
-                  _trackId = parseInt(this.serverResult.round_result);
-                  log('[GameView] 使用服务器指定赛道:', _trackId, '(round_result:', this.serverResult.round_result + ')');
+                  _trackId = parseInt(this.serverResult.win_trac_id);
+                  log('[GameView] 使用服务器指定赛道:', _trackId, '(round_result:', this.serverResult.win_trac_id + ')');
                   return _context4.abrupt("return", _trackId);
                 case 4:
                   if (!(this.debugTargetTrack >= 0 && this.debugTargetTrack < this.JiangLiColliders.length)) {
@@ -2963,7 +2963,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                 before_points: currentPoints.toString(),
                 current_points: (currentPoints - costPoints + winPoints).toString(),
                 deducted_points: costPoints.toString(),
-                round_result: trackIndex.toString(),
+                win_trac_id: (trackIndex + 1).toString(),
                 // 赛道1-7
                 win_points: winPoints.toString(),
                 total_energy: parseInt(gameDataMgr.dLocalData.energyDaily),
@@ -3212,7 +3212,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   }
                   basePoints = parseInt(result.deducted_points) || 0;
                   finalPoints = parseInt(result.win_points) || 0; // 获取赛道的倍率
-                  trackId = parseInt(result.round_result);
+                  trackId = parseInt(result.win_trac_id) - 1;
                   config = gameDataMgr.getConfig();
                   multiplier = (config == null || (_config$trac_list = config.trac_list) == null || (_config$trac_list = _config$trac_list[trackId]) == null ? void 0 : _config$trac_list.rate) || 1; // 使用 Promise 等待动画完成
                   _context5.next = 9;
@@ -3240,7 +3240,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     // 胜利/失败判断：win_points > 0 表示胜利
                     isWin = parseInt(result.win_points) > 0;
                     logic.show(result.win_points, isWin);
-                    log('[GameView] 显示奖励弹框，进入赛道:', result.round_result, '是否胜利:', isWin, '奖励:', result.win_points);
+                    log('[GameView] 显示奖励弹框，进入赛道:', result.win_trac_id, '是否胜利:', isWin, '奖励:', result.win_points);
                   }
 
                   // 更新游戏数据
@@ -5378,6 +5378,10 @@ System.register("chunks:///_virtual/TrajectoryData.ts", ['./rollupPluginModLoBab
          * @returns 随机轨迹数据
          */;
         TrajectoryConfig.getRandomTrajectory = function getRandomTrajectory(trackId) {
+          trackId = trackId - 1;
+          if (trackId < 0 || trackId >= this.TRAJECTORIES.size) {
+            return null;
+          }
           var trajectories = this.TRAJECTORIES.get(trackId);
           if (!trajectories || trajectories.length === 0) {
             return null;
