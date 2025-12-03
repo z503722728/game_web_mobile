@@ -655,6 +655,92 @@ System.register("chunks:///_virtual/Game_Button1.ts", ['./rollupPluginModLoBabel
   };
 });
 
+System.register("chunks:///_virtual/Game_Component1_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_Component1.ts'], function (exports) {
+  var _inheritsLoose, cclegacy, tween, addLogic, GUILogicBase, Game_Component1;
+  return {
+    setters: [function (module) {
+      _inheritsLoose = module.inheritsLoose;
+    }, function (module) {
+      cclegacy = module.cclegacy;
+      tween = module.tween;
+    }, function (module) {
+      addLogic = module.addLogic;
+      GUILogicBase = module.GUILogicBase;
+    }, function (module) {
+      Game_Component1 = module.default;
+    }],
+    execute: function () {
+      var _dec, _class;
+      cclegacy._RF.push({}, "a34e2J/d21FCbTqj1cjlz8b", "Game_Component1_Logic", undefined);
+      var Game_Component1_Logic = exports('default', (_dec = addLogic(Game_Component1), _dec(_class = /*#__PURE__*/function (_GUILogicBase) {
+        _inheritsLoose(Game_Component1_Logic, _GUILogicBase);
+        function Game_Component1_Logic() {
+          var _this;
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+          _this = _GUILogicBase.call.apply(_GUILogicBase, [this].concat(args)) || this;
+          _this._lastEnergy = null;
+          _this._animLabelOriginY = -1;
+          return _this;
+        }
+        var _proto = Game_Component1_Logic.prototype;
+        /**
+         * 播放体力变化动画（掉落渐隐）
+         * @param currentEnergy 当前体力值
+         */
+        _proto.playEnergyAnimation = function playEnergyAnimation(currentEnergy) {
+          // 初始化数据
+          if (this._animLabelOriginY == -1) {
+            if (this.UI.m_animaNum) {
+              this._animLabelOriginY = this.UI.m_animaNum.y;
+              this.UI.m_animaNum.alpha = 0;
+            }
+            this._lastEnergy = currentEnergy;
+            return;
+          }
+
+          // 检查数值变化
+          if (this._lastEnergy !== null && this._lastEnergy !== currentEnergy) {
+            var diff = currentEnergy - this._lastEnergy;
+            this._playAnimation(diff);
+          }
+
+          // 更新记录
+          this._lastEnergy = currentEnergy;
+        };
+        _proto._playAnimation = function _playAnimation(diff) {
+          var animLabel = this.UI.m_animaNum;
+          if (!animLabel) return;
+
+          // 设置文本
+          animLabel.text = diff > 0 ? "+" + diff : "" + diff;
+
+          // 重置状态
+          animLabel.alpha = 1;
+          animLabel.y = this._animLabelOriginY;
+
+          // 停止之前的动画
+          if (animLabel.node) {
+            tween(animLabel.node).stop();
+
+            // 播放掉落渐隐动画
+            // 向下移动 30 像素，同时透明度变为 0
+            tween(animLabel).to(1.0, {
+              y: this._animLabelOriginY + 30,
+              alpha: 0
+            }, {
+              easing: 'quadOut'
+            }).start();
+          }
+        };
+        return Game_Component1_Logic;
+      }(GUILogicBase)) || _class));
+      cclegacy._RF.pop();
+    }
+  };
+});
+
 System.register("chunks:///_virtual/Game_Component1.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './fairygui.mjs', './drongo-gui.mjs'], function (exports) {
   var _inheritsLoose, cclegacy, UIPackage, GLabel, vm;
   return {
@@ -680,6 +766,7 @@ System.register("chunks:///_virtual/Game_Component1.ts", ['./rollupPluginModLoBa
           }
           _this = _fgui$GLabel.call.apply(_fgui$GLabel, [this].concat(args)) || this;
           _this.m_c1 = void 0;
+          _this.m_animaNum = void 0;
           return _this;
         }
         Game_Component1.createInstance = function createInstance() {
@@ -688,6 +775,7 @@ System.register("chunks:///_virtual/Game_Component1.ts", ['./rollupPluginModLoBa
         var _proto = Game_Component1.prototype;
         _proto.onConstruct = function onConstruct() {
           this.m_c1 = this.getController("c1");
+          this.m_animaNum = this.getChild("animaNum");
         };
         return Game_Component1;
       }(GLabel), _class2.URL = "ui://6gpz43l1s4l6w", _class2.Dependencies = ["Game"], _class2)) || _class);
@@ -696,8 +784,8 @@ System.register("chunks:///_virtual/Game_Component1.ts", ['./rollupPluginModLoBa
   };
 });
 
-System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_GamePage.ts', './GameDataMgr.ts', './drongo-cc.mjs', './Game_RulePage.ts', './CenteredWindow.ts'], function (exports) {
-  var _inheritsLoose, cclegacy, addLogic, GBind, GUIManager, GUILogicBase, Game_GamePage, gameDataMgr, log, Game_RulePage, CenteredWindow;
+System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_GamePage.ts', './GameDataMgr.ts', './drongo-cc.mjs', './Game_RulePage.ts', './CenteredWindow.ts', './Game_Component1_Logic.ts'], function (exports) {
+  var _inheritsLoose, cclegacy, addLogic, GBind, GUIManager, GUILogicBase, Game_GamePage, gameDataMgr, log, Game_RulePage, CenteredWindow, Game_Component1_Logic;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
@@ -718,6 +806,8 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
       Game_RulePage = module.default;
     }, function (module) {
       CenteredWindow = module.CenteredWindow;
+    }, function (module) {
+      Game_Component1_Logic = module.default;
     }],
     execute: function () {
       var _dec, _class, _class2;
@@ -729,18 +819,25 @@ System.register("chunks:///_virtual/Game_GamePage_Logic.ts", ['./rollupPluginMod
         }
         var _proto = Game_GamePage_Logic.prototype;
         _proto.onLoad = function onLoad() {
+          var _this = this;
           log('[Game_GamePage_Logic] 初始化游戏页面UI');
 
           // 绑定体力显示（Game_Component1继承自GLabel，可以直接绑定text）
           GBind(this.UI.m_tili, gameDataMgr.dLocalData, function (k) {
             return k.energy;
-          }).setFormatFunc(function () {
+          }).setFormatFunc(function (value) {
+            var logic = _this.UI.m_tili.Get(Game_Component1_Logic);
+            logic.playEnergyAnimation(value);
             return gameDataMgr.dLocalData.energy + "/" + gameDataMgr.dLocalData.energyDaily;
           }).bindTarget(this);
 
           // 绑定积分显示
           GBind(this.UI.m_jifen, gameDataMgr.dLocalData, function (k) {
             return k.currentPoints;
+          }).setFormatFunc(function (value) {
+            var logic = _this.UI.m_jifen.Get(Game_Component1_Logic);
+            logic.playEnergyAnimation(value);
+            return "" + value;
           }).bindTarget(this);
 
           // 规则按钮
@@ -805,7 +902,7 @@ System.register("chunks:///_virtual/Game_GamePage.ts", ['./rollupPluginModLoBabe
 });
 
 System.register("chunks:///_virtual/Game_RewardPage_Logic.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './Game_RewardPage.ts', './drongo-cc.mjs', './AnimatedWindow.ts'], function (exports) {
-  var _inheritsLoose, cclegacy, tween, director, addLogic, GUIManager, GUILogicBase, Game_RewardPage, log, AnimatedWindow;
+  var _inheritsLoose, cclegacy, tween, director, addLogic, AudioUtil, GUIManager, GUILogicBase, Game_RewardPage, log, AnimatedWindow;
   return {
     setters: [function (module) {
       _inheritsLoose = module.inheritsLoose;
@@ -815,6 +912,7 @@ System.register("chunks:///_virtual/Game_RewardPage_Logic.ts", ['./rollupPluginM
       director = module.director;
     }, function (module) {
       addLogic = module.addLogic;
+      AudioUtil = module.AudioUtil;
       GUIManager = module.GUIManager;
       GUILogicBase = module.GUILogicBase;
     }, function (module) {
@@ -841,7 +939,7 @@ System.register("chunks:///_virtual/Game_RewardPage_Logic.ts", ['./rollupPluginM
             args[_key] = arguments[_key];
           }
           _this = _GUILogicBase.call.apply(_GUILogicBase, [this].concat(args)) || this;
-          _this.rewardPoints = '0';
+          _this.rewardPoints = 0;
           return _this;
         }
         var _proto = Game_RewardPage_Logic.prototype;
@@ -862,6 +960,7 @@ System.register("chunks:///_virtual/Game_RewardPage_Logic.ts", ['./rollupPluginM
           this.rewardPoints = winPoints;
           if (isWin) {
             this.UI.m_num.text = "+" + winPoints;
+            AudioUtil.playSound("Game", "get");
             log('[Game_RewardPage_Logic] 显示胜利奖励:', winPoints);
           } else {
             this.UI.m_num.text = "0";
@@ -1065,7 +1164,7 @@ System.register("chunks:///_virtual/Game_RulePage_Logic.ts", ['./rollupPluginMod
         };
         return Game_RulePage_Logic;
       }(GUILogicBase), _class2.uiOptions = {
-        modal: true,
+        // modal: true,
         windowCls: CenteredWindow
       }, _class2)) || _class));
       cclegacy._RF.pop();
@@ -1778,11 +1877,11 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
        */
       var GameData = function GameData() {
         /** 当前积分 */
-        this.currentPoints = '0';
+        this.currentPoints = 0;
         /** 当前能量 */
-        this.energy = '0';
+        this.energy = 0;
         /** 每日能量上限 */
-        this.energyDaily = '0';
+        this.energyDaily = 0;
       };
       var GameDataMgr = autoBindToWindow(_class2 = /*#__PURE__*/function (_instance_base) {
         _inheritsLoose(GameDataMgr, _instance_base);
@@ -1826,10 +1925,10 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
 
                   // Mock配置数据
                   this.config = {
-                    current_points: '9999',
-                    base_points_per_round: '5',
-                    total_energy: '999',
-                    current_energy: '999',
+                    current_points: 9999,
+                    base_points_per_round: 5,
+                    total_energy: 999,
+                    current_energy: 999,
                     multiplier_list: [1, 3, 5, 10],
                     trac_list: [{
                       id: 1,
@@ -1918,9 +2017,12 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
 
         /**
          * 获取当前积分数值
+         */
+        /**
+         * 获取当前积分数值
          */;
         _proto.getCurrentPointsNumber = function getCurrentPointsNumber() {
-          return parseInt(this.dLocalData.currentPoints) || 0;
+          return this.dLocalData.currentPoints;
         }
 
         /**
@@ -1984,7 +2086,7 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
           if (!this.config) {
             return 0;
           }
-          var basePoints = parseInt(this.config.base_points_per_round);
+          var basePoints = this.config.base_points_per_round;
           var multiplier = this.getCurrentMultiplier();
           return basePoints * multiplier;
         }
@@ -2007,16 +2109,14 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
           }
 
           // 检查能量
-          var energy = parseInt(this.dLocalData.energy);
-          if (energy <= 0) {
+          if (this.dLocalData.energy <= 0) {
             log('[GameDataMgr] 能量不足，无法开始游戏');
             return false;
           }
 
           // 检查积分
-          var currentPoints = parseInt(this.dLocalData.currentPoints);
           var costPoints = this.getCostPoints();
-          if (currentPoints < costPoints) {
+          if (this.dLocalData.currentPoints < costPoints) {
             log('[GameDataMgr] 积分不足，无法开始游戏');
             return false;
           }
@@ -2033,18 +2133,18 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
           }
 
           // 更新积分（使用服务器返回的数据）
-          this.dLocalData.currentPoints = result.current_points;
+          this.dLocalData.currentPoints = result.current_points || 0;
 
           // 更新能量（使用服务器返回的数据）
-          this.dLocalData.energy = result.current_energy.toString();
-          this.dLocalData.energyDaily = result.total_energy.toString();
+          this.dLocalData.energy = result.current_energy;
+          this.dLocalData.energyDaily = result.total_energy;
           log('[GameDataMgr] 游戏结果更新:');
           log('  - 游戏前积分:', result.before_points);
           log('  - 游戏后积分:', result.current_points);
           log('  - 消耗积分:', result.deducted_points);
           log('  - 剩余能量:', this.dLocalData.energy, '/', this.dLocalData.energyDaily);
           log('  - 进入赛道:', result.win_trac_id);
-          log('  - 赢得积分:', result.win_points, '(', result.win_points === '0' ? '失败' : '胜利', ')');
+          log('  - 赢得积分:', result.win_points, '(', result.win_points === 0 ? '失败' : '胜利', ')');
         }
 
         /**
@@ -2063,7 +2163,7 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
 });
 
 System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts', './TrajectoryRecorder.ts', './TrajectoryPlayer.ts', './TrajectoryData.ts', './GameDataMgr.ts', './NetMgr.ts', './MultiplierControl.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_GamePage.ts', './GameConfig.ts', './UIUtil.ts', './RewardScoreAnimator.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, ballPhysicsConfig, BackgroundAdapter, GUIManager, AudioUtil, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator;
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, ballPhysicsConfig, BackgroundAdapter, AudioUtil, GUIManager, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -2100,8 +2200,8 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
       ballPhysicsConfig = module.ballPhysicsConfig;
     }, function (module) {
       BackgroundAdapter = module.BackgroundAdapter;
-      GUIManager = module.GUIManager;
       AudioUtil = module.AudioUtil;
+      GUIManager = module.GUIManager;
     }, function (module) {
       Game_TestView = module.default;
     }, function (module) {
@@ -2274,6 +2374,11 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           this.PressBtn.node.on(Input.EventType.TOUCH_START, this.onBtnDown, this);
           this.PressBtn.node.on(Input.EventType.TOUCH_END, this.onBtnUp, this);
           this.PressBtn.node.on(Input.EventType.TOUCH_CANCEL, this.onBtnUp, this);
+
+          // ========== 接管 PressBtn 状态 ==========
+          // 禁用内置过渡效果，完全手动控制Sprite
+          this.PressBtn.transition = Button.Transition.NONE;
+          log('[GameView] 已接管 PressBtn 状态，使用手动Sprite切换');
 
           // 注册测试重置按钮
           if (this.ResetGameBtn) {
@@ -2460,23 +2565,24 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         _proto.onCoinInsert = /*#__PURE__*/
         function () {
           var _onCoinInsert = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-            var multiplier, response;
+            var multiplier, _costPoints, costPoints, response;
             return _regeneratorRuntime().wrap(function _callee2$(_context2) {
               while (1) switch (_context2.prev = _context2.next) {
                 case 0:
                   log('[GameView] 点击投币按钮');
+                  AudioUtil.playSound("Game", "click");
 
                   // 检查是否可以开始游戏
                   if (gameDataMgr.canStartGame()) {
-                    _context2.next = 4;
+                    _context2.next = 5;
                     break;
                   }
                   log('[GameView] 无法开始游戏（能量不足或积分不足）');
                   return _context2.abrupt("return");
-                case 4:
+                case 5:
                   multiplier = gameDataMgr.getCurrentMultiplier().toString(); // ========== 录制模式：跳过服务器请求，直接启用发射 ==========
                   if (!(CURRENT_GAME_MODE === GameMode.RECORDING)) {
-                    _context2.next = 20;
+                    _context2.next = 24;
                     break;
                   }
                   log('[GameView] [录制模式] 跳过服务器请求，直接启用发射');
@@ -2507,8 +2613,13 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   }
 
                   log('[GameView] ✅ [录制模式] 投币成功，可以发射（等待小球进入赛道后自动录制）');
+
+                  // 立即扣除本地积分和能量（乐观更新）
+                  _costPoints = gameDataMgr.getCostPoints();
+                  gameDataMgr.dLocalData.currentPoints -= _costPoints;
+                  gameDataMgr.dLocalData.energy -= 1;
                   return _context2.abrupt("return");
-                case 20:
+                case 24:
                   // ========== 游戏模式：请求服务器获取游戏结果 ==========
                   log('[GameView] [游戏模式] 请求开始游戏，倍率:', multiplier);
 
@@ -2516,9 +2627,14 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   setButtonInteractable(this.TouBiBtn, false);
                   setButtonInteractable(this.AddScoreBtn, false);
                   setButtonInteractable(this.ReduceScoreBtn, false);
-                  _context2.next = 26;
+
+                  // 立即扣除本地积分和能量（乐观更新）
+                  costPoints = gameDataMgr.getCostPoints();
+                  gameDataMgr.dLocalData.currentPoints -= costPoints;
+                  gameDataMgr.dLocalData.energy -= 1;
+                  _context2.next = 33;
                   return netMgr.startGame(multiplier);
-                case 26:
+                case 33:
                   response = _context2.sent;
                   if (response.code === 0) {
                     // 保存服务器结果
@@ -2549,12 +2665,16 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   } else {
                     log('[GameView] ❌ [游戏模式] 投币失败:', response.msg);
 
+                    // 失败回滚本地数据
+                    gameDataMgr.dLocalData.currentPoints += costPoints;
+                    gameDataMgr.dLocalData.energy += 1;
+
                     // 恢复按钮状态
                     setButtonInteractable(this.TouBiBtn, true);
                     setButtonInteractable(this.AddScoreBtn, gameDataMgr.canIncreaseMultiplier());
                     setButtonInteractable(this.ReduceScoreBtn, gameDataMgr.canDecreaseMultiplier());
                   }
-                case 28:
+                case 35:
                 case "end":
                   return _context2.stop();
               }
@@ -2572,14 +2692,20 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
             return;
           }
           log('[GameView] 开始蓄力');
+          AudioUtil.playSound("Game", "click");
           this.ballState = BallState.CHARGING;
           this.chargeValue = 0;
+
+          // 手动切换到按下状态的Sprite
+          this.updatePressBtnSprite(true);
         };
         _proto.onBtnUp = function onBtnUp() {
           if (this.ballState !== BallState.CHARGING) {
             return;
           }
           log('[GameView] 松开按钮，蓄力值:', this.chargeValue.toFixed(2));
+          // 重置按钮Sprite为普通状态
+          this.updatePressBtnSprite(false);
           this.launchBall();
         };
         _proto.onResetBtnClick = function onResetBtnClick() {
@@ -2756,7 +2882,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     _context4.next = 4;
                     break;
                   }
-                  _trackId = parseInt(this.serverResult.win_trac_id);
+                  _trackId = this.serverResult.win_trac_id;
                   log('[GameView] 使用服务器指定赛道:', _trackId, '(round_result:', this.serverResult.win_trac_id + ')');
                   return _context4.abrupt("return", _trackId);
                 case 4:
@@ -2968,14 +3094,14 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                 winPoints = costPoints * trackRate;
               }
               this.serverResult = {
-                before_points: currentPoints.toString(),
-                current_points: (currentPoints - costPoints + winPoints).toString(),
-                deducted_points: costPoints.toString(),
-                win_trac_id: (trackIndex + 1).toString(),
+                before_points: currentPoints,
+                current_points: currentPoints - costPoints + winPoints,
+                deducted_points: costPoints,
+                win_trac_id: trackIndex + 1,
                 // 赛道1-7
-                win_points: winPoints.toString(),
-                total_energy: parseInt(gameDataMgr.dLocalData.energyDaily),
-                current_energy: parseInt(gameDataMgr.dLocalData.energy) - 1 // 消耗1点能量
+                win_points: winPoints,
+                total_energy: gameDataMgr.dLocalData.energyDaily,
+                current_energy: gameDataMgr.dLocalData.energy - 1 // 消耗1点能量
               };
 
               log('[GameView] [录制] 构建Mock服务器结果:', this.serverResult);
@@ -3218,9 +3344,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     _context5.next = 12;
                     break;
                   }
-                  basePoints = parseInt(result.deducted_points) || 0;
-                  finalPoints = parseInt(result.win_points) || 0; // 获取赛道的倍率
-                  trackId = parseInt(result.win_trac_id) - 1;
+                  basePoints = result.deducted_points || 0;
+                  finalPoints = result.win_points || 0; // 获取赛道的倍率
+                  trackId = result.win_trac_id - 1;
                   config = gameDataMgr.getConfig();
                   multiplier = (config == null || (_config$trac_list = config.trac_list) == null || (_config$trac_list = _config$trac_list[trackId]) == null ? void 0 : _config$trac_list.rate) || 1; // 使用 Promise 等待动画完成
                   _context5.next = 9;
@@ -3246,7 +3372,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                   logic = ui.contentPane.Get(Game_RewardPage_Logic);
                   if (logic) {
                     // 胜利/失败判断：win_points > 0 表示胜利
-                    isWin = parseInt(result.win_points) > 0;
+                    isWin = result.win_points > 0;
                     logic.show(result.win_points, isWin);
                     log('[GameView] 显示奖励弹框，进入赛道:', result.win_trac_id, '是否胜利:', isWin, '奖励:', result.win_points);
                   }
@@ -3302,6 +3428,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
           this.initArrows(); // 重置箭头状态（确保完全初始化）
           this.resetBallOpacity(); // 小球透明度恢复0
           this.initDropWayColliders(); // 重置DropWay碰撞体状态
+
+          // 重置按钮Sprite为普通状态
+          this.updatePressBtnSprite(false);
           if (this.rewardScoreAnimator) {
             this.rewardScoreAnimator.reset(); // 重置计分板
           }
@@ -3825,6 +3954,22 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         }
 
         /**
+         * 更新 PressBtn 的 Sprite
+         * @param isPressed 是否按下状态
+         */;
+        _proto.updatePressBtnSprite = function updatePressBtnSprite(isPressed) {
+          if (!this.PressBtn || !this.PressBtn.isValid) return;
+          var sprite = this.PressBtn.node.getComponent(Sprite);
+          if (!sprite) return;
+
+          // 获取对应的 SpriteFrame
+          var targetSprite = isPressed ? this.PressBtn.pressedSprite : this.PressBtn.normalSprite;
+          if (targetSprite) {
+            sprite.spriteFrame = targetSprite;
+          }
+        }
+
+        /**
          * 重置小球透明度为0（隐藏）
          */;
         _proto.resetBallOpacity = function resetBallOpacity() {
@@ -3943,15 +4088,15 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
   };
 });
 
-System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
+System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_Component1_Logic.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
   return {
-    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     execute: function () {}
   };
 });
 
-System.register("chunks:///_virtual/MultiplierControl.ts", ['cc', './drongo-cc.mjs', './GameDataMgr.ts', './UIUtil.ts'], function (exports) {
-  var cclegacy, Button, log, gameDataMgr, setButtonInteractable;
+System.register("chunks:///_virtual/MultiplierControl.ts", ['cc', './drongo-cc.mjs', './GameDataMgr.ts', './UIUtil.ts', './drongo-gui.mjs'], function (exports) {
+  var cclegacy, Button, log, gameDataMgr, setButtonInteractable, AudioUtil;
   return {
     setters: [function (module) {
       cclegacy = module.cclegacy;
@@ -3962,6 +4107,8 @@ System.register("chunks:///_virtual/MultiplierControl.ts", ['cc', './drongo-cc.m
       gameDataMgr = module.gameDataMgr;
     }, function (module) {
       setButtonInteractable = module.setButtonInteractable;
+    }, function (module) {
+      AudioUtil = module.AudioUtil;
     }],
     execute: function () {
       cclegacy._RF.push({}, "ffed1n8b6pBR4VA5+hpM8p5", "MultiplierControl", undefined);
@@ -4004,6 +4151,7 @@ System.register("chunks:///_virtual/MultiplierControl.ts", ['cc', './drongo-cc.m
          * 增加倍率
          */;
         _proto.onIncrease = function onIncrease() {
+          AudioUtil.playSound("Game", "click");
           gameDataMgr.increaseMultiplier();
           this.updateUI();
         }
@@ -4012,6 +4160,7 @@ System.register("chunks:///_virtual/MultiplierControl.ts", ['cc', './drongo-cc.m
          * 减少倍率
          */;
         _proto.onDecrease = function onDecrease() {
+          AudioUtil.playSound("Game", "click");
           gameDataMgr.decreaseMultiplier();
           this.updateUI();
         }
@@ -4569,11 +4718,12 @@ System.register("chunks:///_virtual/PoolMgr.ts", ['./rollupPluginModLoBabelHelpe
 });
 
 System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc.mjs'], function (exports) {
-  var cclegacy, tween, log;
+  var cclegacy, tween, Vec3, log;
   return {
     setters: [function (module) {
       cclegacy = module.cclegacy;
       tween = module.tween;
+      Vec3 = module.Vec3;
     }, function (module) {
       log = module.log;
     }],
@@ -4654,18 +4804,16 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
         }
 
         /**
-         * 播放积分翻倍动画（中等方案）
-         * 阶段1：显示基础积分（0.5秒）
-         * 阶段2：显示倍率标记 x倍率（0.3秒）
-         * 阶段3：数字逐步增加到最终积分（0.8秒）
+         * 播放积分动画（新方案）
+         * 1. 从0开始递增到最终积分
+         * 2. 到达最终积分后闪烁两次
          * 
-         * @param basePoints 基础积分（消耗的积分）
-         * @param multiplier 倍率
+         * @param basePoints 基础积分（未使用）
+         * @param multiplier 倍率（未使用）
          * @param finalPoints 最终赢得的积分
          * @param onComplete 动画完成回调
          */;
         _proto.playMultiplyAnimation = function playMultiplyAnimation(basePoints, multiplier, finalPoints, onComplete) {
-          var _this = this;
           if (!this.label || !this.label.isValid) {
             log('[RewardScoreAnimator] ⚠️ Label无效，无法播放动画');
             if (onComplete) onComplete();
@@ -4674,39 +4822,24 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
 
           // 停止之前的动画
           tween(this.label.node).stop();
-          log('[RewardScoreAnimator] 开始积分翻倍动画:', basePoints, 'x', multiplier, '=', finalPoints);
+          log('[RewardScoreAnimator] 开始积分动画，目标:', finalPoints);
 
-          // 阶段1：显示基础积分
-          this.label.string = basePoints.toString();
-          tween(this.label.node)
-          // 等待0.5秒
-          .delay(0.5)
-          // 阶段2：显示倍率标记
-          .call(function () {
-            if (_this.label && _this.label.isValid) {
-              _this.label.string = basePoints + " x" + multiplier;
-              log('[RewardScoreAnimator] 显示倍率标记:', _this.label.string);
-            }
-          })
-          // 等待0.3秒
-          .delay(0.3)
-          // 阶段3：数字递增动画
-          .call(function () {
-            if (_this.label && _this.label.isValid) {
-              _this.animateCountUp(basePoints, finalPoints, 0.8, onComplete);
-            }
-          }).start();
+          // 初始显示为0
+          this.label.string = '0';
+
+          // 开始递增动画 (1.0秒)
+          this.animateCountUp(0, finalPoints, 1.0, onComplete);
         }
 
         /**
-         * 数字递增动画
+         * 数字递增动画 + 闪烁
          * @param from 起始数值
          * @param to 目标数值
          * @param duration 动画时长（秒）
          * @param onComplete 完成回调
          */;
         _proto.animateCountUp = function animateCountUp(from, to, duration, onComplete) {
-          var _this2 = this;
+          var _this = this;
           if (!this.label || !this.label.isValid) {
             if (onComplete) onComplete();
             return;
@@ -4715,31 +4848,44 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
           var stepDuration = duration / steps;
           var increment = (to - from) / steps;
           var current = from;
-          log('[RewardScoreAnimator] 数字递增:', from, '→', to);
 
           // 创建递增动画
           var node = this.label.node;
           var stepCount = 0;
           tween(node).repeat(steps, tween().delay(stepDuration).call(function () {
-            if (_this2.label && _this2.label.isValid) {
+            if (_this.label && _this.label.isValid) {
               current += increment;
               stepCount++;
 
-              // 最后一步直接设置为目标值，避免浮点误差
+              // 最后一步直接设置为目标值
               if (stepCount >= steps) {
-                _this2.label.string = to.toString();
+                _this.label.string = to.toString();
               } else {
-                _this2.label.string = Math.floor(current).toString();
+                _this.label.string = Math.floor(current).toString();
               }
             }
           }))
-          // 确保最终显示目标值并调用回调
+          // 递增完成后，闪烁两次
           .call(function () {
-            if (_this2.label && _this2.label.isValid) {
-              _this2.label.string = to.toString();
-              log('[RewardScoreAnimator] ✅ 动画完成，最终积分:', to);
-            }
-            // 调用完成回调
+            log('[RewardScoreAnimator] 递增完成，开始闪烁');
+          })
+          // 闪烁第1次
+          .to(0.15, {
+            scale: new Vec3(1.2, 1.2, 1)
+          }) // 放大
+          .to(0.15, {
+            scale: new Vec3(1, 1, 1)
+          }) // 恢复
+          // 闪烁第2次
+          .to(0.15, {
+            scale: new Vec3(1.2, 1.2, 1)
+          }) // 放大
+          .to(0.15, {
+            scale: new Vec3(1, 1, 1)
+          }) // 恢复
+          // 动画全部完成
+          .call(function () {
+            log('[RewardScoreAnimator] ✅ 动画全部完成');
             if (onComplete) {
               onComplete();
             }
@@ -4847,7 +4993,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
           UIConfig.bringWindowToFrontOnClick = false;
           registerFont("GILROY-BLACK");
           UIConfig.defaultFont = "GILROY-BLACK";
-          UIConfig.modalLayerColor = color(0, 0, 0, 100);
+          UIConfig.modalLayerColor = color(0, 0, 0, 204);
 
           // 初始化进度条和标签
           this.progressBar.progress = 0;

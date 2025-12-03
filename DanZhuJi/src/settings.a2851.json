@@ -43,8 +43,8 @@
         ],
         "bundleVers": {
             "internal": "2b209",
-            "main": "9c63b",
-            "resources": "17b6a"
+            "main": "dfece",
+            "resources": "67bd1"
         },
         "preloadAssets": [],
         "projectBundles": [
@@ -70,7 +70,7 @@
         "designResolution": {
             "width": 750,
             "height": 1624,
-            "policy": 3
+            "policy": 2
         },
         "orientation": "auto"
     },
