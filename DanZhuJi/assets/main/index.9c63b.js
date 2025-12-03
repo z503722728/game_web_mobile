@@ -2511,9 +2511,14 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                 case 20:
                   // ========== 游戏模式：请求服务器获取游戏结果 ==========
                   log('[GameView] [游戏模式] 请求开始游戏，倍率:', multiplier);
-                  _context2.next = 23;
+
+                  // 立即禁用按钮，防止重复点击或在请求期间修改倍率
+                  setButtonInteractable(this.TouBiBtn, false);
+                  setButtonInteractable(this.AddScoreBtn, false);
+                  setButtonInteractable(this.ReduceScoreBtn, false);
+                  _context2.next = 26;
                   return netMgr.startGame(multiplier);
-                case 23:
+                case 26:
                   response = _context2.sent;
                   if (response.code === 0) {
                     // 保存服务器结果
@@ -2527,11 +2532,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                       this.BallNumLabel.string = '1';
                     }
 
-                    // 启用发射按钮，禁用投币按钮和倍率按钮
+                    // 启用发射按钮
                     setButtonInteractable(this.PressBtn, true);
-                    setButtonInteractable(this.TouBiBtn, false);
-                    setButtonInteractable(this.AddScoreBtn, false);
-                    setButtonInteractable(this.ReduceScoreBtn, false);
+                    // 投币和倍率按钮保持禁用（已在请求前禁用）
 
                     // ========== 启动所有视觉反馈效果 ==========
                     this.playAnimaIconsFlash(); // 图标闪烁2次
@@ -2545,8 +2548,13 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     log('[GameView] 目标赛道:', response.data.win_trac_id);
                   } else {
                     log('[GameView] ❌ [游戏模式] 投币失败:', response.msg);
+
+                    // 恢复按钮状态
+                    setButtonInteractable(this.TouBiBtn, true);
+                    setButtonInteractable(this.AddScoreBtn, gameDataMgr.canIncreaseMultiplier());
+                    setButtonInteractable(this.ReduceScoreBtn, gameDataMgr.canDecreaseMultiplier());
                   }
-                case 25:
+                case 28:
                 case "end":
                   return _context2.stop();
               }
