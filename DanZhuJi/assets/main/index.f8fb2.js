@@ -2162,8 +2162,8 @@ System.register("chunks:///_virtual/GameDataMgr.ts", ['./rollupPluginModLoBabelH
   };
 });
 
-System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts', './TrajectoryRecorder.ts', './TrajectoryPlayer.ts', './TrajectoryData.ts', './GameDataMgr.ts', './NetMgr.ts', './MultiplierControl.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_GamePage.ts', './GameConfig.ts', './UIUtil.ts', './RewardScoreAnimator.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, ballPhysicsConfig, BackgroundAdapter, AudioUtil, GUIManager, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator;
+System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-cc.mjs', './BallPhysicsConfig.ts', './drongo-gui.mjs', './Game_TestView.ts', './TrajectoryRecorder.ts', './TrajectoryPlayer.ts', './TrajectoryData.ts', './GameDataMgr.ts', './NetMgr.ts', './MultiplierControl.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_GamePage.ts', './GameConfig.ts', './UIUtil.ts', './RewardScoreAnimator.ts', './ToyControlInterface.ts'], function (exports) {
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, RigidBody2D, Button, UITransform, Collider2D, Node, Label, Vec3, director, Input, Contact2DType, input, v2, PhysicsSystem2D, tween, Sprite, UIOpacity, KeyCode, Tween, Component, log, ballPhysicsConfig, BackgroundAdapter, AudioUtil, GUIManager, Game_TestView, TrajectoryRecorder, TrajectoryPlayer, TrajectoryConfig, gameDataMgr, GameState, netMgr, MultiplierControl, Game_RewardPage, REWARD_PAGE_CLOSED_EVENT, Game_RewardPage_Logic, Game_GamePage, CURRENT_GAME_MODE, GameMode, setButtonInteractable, RewardScoreAnimator, ToyControlInterface;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -2231,6 +2231,8 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
       setButtonInteractable = module.setButtonInteractable;
     }, function (module) {
       RewardScoreAnimator = module.RewardScoreAnimator;
+    }, function (module) {
+      ToyControlInterface = module.ToyControlInterface;
     }],
     execute: function () {
       var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _dec13, _dec14, _dec15, _dec16, _dec17, _dec18, _dec19, _class, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18;
@@ -3095,13 +3097,13 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
               }
               this.serverResult = {
                 before_points: currentPoints,
-                current_points: currentPoints - costPoints + winPoints,
+                current_points: currentPoints + winPoints,
                 deducted_points: costPoints,
                 win_trac_id: trackIndex + 1,
                 // 赛道1-7
                 win_points: winPoints,
                 total_energy: gameDataMgr.dLocalData.energyDaily,
-                current_energy: gameDataMgr.dLocalData.energy - 1 // 消耗1点能量
+                current_energy: gameDataMgr.dLocalData.energy // 消耗1点能量
               };
 
               log('[GameView] [录制] 构建Mock服务器结果:', this.serverResult);
@@ -3152,6 +3154,8 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
 
           // 播放音效
           AudioUtil.playSound("Game", "collide");
+          // 触发震动
+          ToyControlInterface.vibrate();
         };
         _proto.playBounceAnim = function playBounceAnim(node) {
           // 停止之前的动画
@@ -3332,7 +3336,7 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
         function () {
           var _showRewardPopup = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(result) {
             var _this8 = this;
-            var _config$trac_list, basePoints, finalPoints, trackId, config, multiplier, ui, logic, isWin;
+            var _config$trac_list, basePoints, finalPoints, trackId, config, multiplier, ui, logic;
             return _regeneratorRuntime().wrap(function _callee5$(_context5) {
               while (1) switch (_context5.prev = _context5.next) {
                 case 0:
@@ -3365,21 +3369,34 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
                     return setTimeout(resolve, 500);
                   });
                 case 12:
-                  _context5.next = 14;
+                  if (!(result.win_points > 0)) {
+                    _context5.next = 21;
+                    break;
+                  }
+                  _context5.next = 15;
                   return GUIManager.open(Game_RewardPage);
-                case 14:
+                case 15:
                   ui = _context5.sent;
                   logic = ui.contentPane.Get(Game_RewardPage_Logic);
                   if (logic) {
-                    // 胜利/失败判断：win_points > 0 表示胜利
-                    isWin = result.win_points > 0;
-                    logic.show(result.win_points, isWin);
-                    log('[GameView] 显示奖励弹框，进入赛道:', result.win_trac_id, '是否胜利:', isWin, '奖励:', result.win_points);
+                    logic.show(result.win_points, true);
+                    log('[GameView] 显示奖励弹框，进入赛道:', result.win_trac_id, '是否胜利: true', '奖励:', result.win_points);
                   }
 
-                  // 更新游戏数据
+                  // 更新游戏数据 (弹框模式下，在此处更新)
                   gameDataMgr.updateAfterGameResult(result);
-                case 18:
+                  _context5.next = 24;
+                  break;
+                case 21:
+                  // 失败/无奖励：不弹框，直接走后续流程
+                  log('[GameView] 奖励为0，跳过弹框直接重置');
+
+                  // 1. 先更新游戏数据 (确保金币/能量扣除反映在UI上)
+                  gameDataMgr.updateAfterGameResult(result);
+
+                  // 2. 直接重置游戏状态 (模拟关闭弹框后的行为)
+                  this.resetToInitial();
+                case 24:
                 case "end":
                   return _context5.stop();
               }
@@ -4088,9 +4105,9 @@ System.register("chunks:///_virtual/GameView.ts", ['./rollupPluginModLoBabelHelp
   };
 });
 
-System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_Component1_Logic.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
+System.register("chunks:///_virtual/main", ['./CommonExport.ts', './ConfigBase.ts', './BallPhysicsConfig.ts', './GameConfig.ts', './GameView.ts', './ConfigMgr.ts', './GameDataMgr.ts', './NetMgr.ts', './PoolMgr.ts', './ToastUtil.ts', './MultiplierControl.ts', './NetTypes.ts', './RewardScoreAnimator.ts', './ToyControlInterface.ts', './TrajectoryCompressor.ts', './TrajectoryData.ts', './TrajectoryPlayer.ts', './TrajectoryRecorder.ts', './UIUtil.ts', './StartView.ts', './GameBinder.ts', './Game_Component1.ts', './Game_Component1_Logic.ts', './Game_GamePage.ts', './Game_GamePage_Logic.ts', './Game_RewardPage.ts', './Game_RewardPage_Logic.ts', './Game_RulePage.ts', './Game_RulePage_Logic.ts', './Game_Tooltips.ts', './Game_Tooltips_Logic.ts', './AnimatedWindow.ts', './CenteredWindow.ts', './Game_Button1.ts', './Game_Button1_Logic.ts', './Game_TestBtnView.ts', './Game_TestBtnView_Logic.ts', './Game_TestView.ts', './Game_TestView_Logic.ts'], function () {
   return {
-    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+    setters: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     execute: function () {}
   };
 });
@@ -4916,8 +4933,8 @@ System.register("chunks:///_virtual/RewardScoreAnimator.ts", ['cc', './drongo-cc
   };
 });
 
-System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs', './TrajectoryData.ts', './GameDataMgr.ts', './GameConfig.ts', './NetMgr.ts', './NetTypes.ts'], function (exports) {
-  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, GRoot, UIConfig, registerFont, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode, netMgr, Environment;
+System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHelpers.js', 'cc', './drongo-gui.mjs', './CommonExport.ts', './fairygui.mjs', './drongo-cc.mjs', './TrajectoryData.ts', './GameDataMgr.ts', './GameConfig.ts', './NetMgr.ts', './NetTypes.ts', './ToyControlInterface.ts'], function (exports) {
+  var _applyDecoratedDescriptor, _inheritsLoose, _initializerDefineProperty, _assertThisInitialized, _asyncToGenerator, _regeneratorRuntime, cclegacy, _decorator, Label, ProgressBar, Node, color, director, tween, Component, AudioUtil, AllBinder, BackgroundAdapter, GUIManager, GRoot, UIConfig, registerFont, log, TrajectoryConfig, gameDataMgr, setGameMode, GameMode, getCurrentGameMode, netMgr, Environment, ToyControlInterface;
   return {
     setters: [function (module) {
       _applyDecoratedDescriptor = module.applyDecoratedDescriptor;
@@ -4959,6 +4976,8 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
       netMgr = module.netMgr;
     }, function (module) {
       Environment = module.Environment;
+    }, function (module) {
+      ToyControlInterface = module.ToyControlInterface;
     }],
     execute: function () {
       var _dec, _dec2, _dec3, _class, _class2, _descriptor, _descriptor2, _descriptor3;
@@ -4999,6 +5018,7 @@ System.register("chunks:///_virtual/StartView.ts", ['./rollupPluginModLoBabelHel
           this.progressBar.progress = 0;
           this.label.string = "0%";
           this.progressObj.value = 0;
+          ToyControlInterface.init();
           director.addPersistRootNode(this.node);
         }
 
@@ -5364,6 +5384,135 @@ System.register("chunks:///_virtual/ToastUtil.ts", ['./rollupPluginModLoBabelHel
         }));
         return _showToast.apply(this, arguments);
       }
+      cclegacy._RF.pop();
+    }
+  };
+});
+
+System.register("chunks:///_virtual/ToyControlInterface.ts", ['cc', './drongo-cc.mjs'], function (exports) {
+  var cclegacy, log;
+  return {
+    setters: [function (module) {
+      cclegacy = module.cclegacy;
+    }, function (module) {
+      log = module.log;
+    }],
+    execute: function () {
+      cclegacy._RF.push({}, "f2b3cTV5vdIqZq83vEjRWeJ", "ToyControlInterface", undefined);
+
+      // 声明全局 window 接口
+      // 玩具控制类型
+      var ToyControlType = /*#__PURE__*/function (ToyControlType) {
+        ToyControlType["GAME_END"] = "1";
+        ToyControlType["GAME_PLAYING"] = "2";
+        ToyControlType["GAME_PAUSE"] = "3";
+        ToyControlType["PHONE_VIBRATE"] = "4";
+        return ToyControlType;
+      }(ToyControlType || {}); // 振动强度等级
+      var VibrationIntensity = /*#__PURE__*/function (VibrationIntensity) {
+        VibrationIntensity["PERFECT"] = "Perfect";
+        VibrationIntensity["GREAT"] = "Great";
+        VibrationIntensity["GOOD"] = "Good";
+        VibrationIntensity["COOL"] = "Cool";
+        VibrationIntensity["MISS"] = "Miss";
+        return VibrationIntensity;
+      }(VibrationIntensity || {});
+      var ToyControlInterface = exports('ToyControlInterface', /*#__PURE__*/function () {
+        function ToyControlInterface() {}
+        /**
+         * 初始化玩具控制
+         */
+        ToyControlInterface.init = function init() {
+          if (typeof window !== 'undefined' && window.unityCallJsFunc) {
+            this.isEnabled = true;
+            console.log('[ToyControlInterface] 玩具控制接口已就绪');
+          } else {
+            console.log('[ToyControlInterface] 玩具控制接口不可用（非Unity环境或接口未注入）');
+          }
+        }
+
+        /**
+         * 核心接口1：触发震动
+         * 1. 玩具震动（中等强度）
+         * 2. 手机震动（同步）
+         * 3. 自动停止（计时结束自动发送停止指令）
+         * 
+         * 支持多次调用用于"续杯"，每次调用都会重置停止计时器
+         */;
+        ToyControlInterface.vibrate = function vibrate() {
+          var _this = this;
+          if (!this.isEnabled) return;
+
+          // 1. 清除当前 pending 的停止指令 (防抖/续时)
+          if (this.stopTimer !== null) {
+            clearTimeout(this.stopTimer);
+            this.stopTimer = null;
+          }
+
+          // 2. 发送开始震动指令
+          // 玩具: 游戏中 + Good (中等)
+          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.GOOD);
+
+          // 手机: 震动 (Miss只是占位)
+          this.callUnityInterface(ToyControlType.PHONE_VIBRATE, VibrationIntensity.MISS);
+          log("[ToyControlInterface] \u89E6\u53D1\u9707\u52A8 (Toy: Good, Phone: Vibrate)");
+
+          // 3. 设置自动停止
+          // 与手机震动保持一致结束 (500ms)
+          this.stopTimer = setTimeout(function () {
+            _this.stop();
+          }, this.VIBRATE_DURATION);
+        }
+
+        /**
+         * 核心接口2：停止震动
+         * 手动停止或自动回调使用
+         */;
+        ToyControlInterface.stop = function stop() {
+          if (!this.isEnabled) return;
+
+          // 清理计时器引用，防止重复清理
+          if (this.stopTimer !== null) {
+            clearTimeout(this.stopTimer);
+            this.stopTimer = null;
+          }
+
+          // 发送停止指令 (Miss = 停止)
+          this.callUnityInterface(ToyControlType.GAME_PLAYING, VibrationIntensity.MISS);
+          log('[ToyControlInterface] 停止震动');
+        }
+
+        /**
+         * Set enabled state explicitly
+         */;
+        ToyControlInterface.setEnabled = function setEnabled(enabled) {
+          this.isEnabled = enabled && typeof window !== 'undefined' && !!window.unityCallJsFunc;
+        }
+
+        // ----------------------------------------------------------------
+        // Internal Communication
+        // ----------------------------------------------------------------
+        ;
+
+        ToyControlInterface.callUnityInterface = function callUnityInterface(type, intensity) {
+          if (!this.isEnabled || !window.unityCallJsFunc) return;
+          var data = {
+            type: type,
+            point_score: intensity
+          };
+          var jsonString = JSON.stringify(data);
+          try {
+            window.unityCallJsFunc(jsonString);
+          } catch (e) {
+            console.error('[ToyControlInterface] 调用Unity接口失败:', e);
+          }
+        };
+        return ToyControlInterface;
+      }());
+      ToyControlInterface.isEnabled = false;
+      ToyControlInterface.stopTimer = null;
+      // 震动时长配置 (ms)
+      ToyControlInterface.VIBRATE_DURATION = 500;
       cclegacy._RF.pop();
     }
   };
