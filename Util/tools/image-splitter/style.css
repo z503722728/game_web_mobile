@@ -7,9 +7,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
+    /* 让左右两个 card 各自按内容高度生长，而不是被对方拉齐 */
+    align-items: start;
 }
 @media (max-width: 880px) {
     .grid-2 { grid-template-columns: 1fr; }
+}
+/* 当结果较多时，由 JS 加上 .results-many，结果卡片占满整行，避免被压窄 */
+.grid-2.results-many {
+    grid-template-columns: 1fr;
 }
 
 /* ============== 上传区 ============== */
@@ -87,14 +93,18 @@
 }
 
 .result-grid {
+    /* 自适应列：缩略图最小 110px，自动换行；不再固定 3 列、不再限制高度 */
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 10px;
-    max-height: 360px;
-    overflow-y: auto;
-    padding-right: 4px;
     min-height: 200px;
     align-content: start;
+}
+/* 大量结果时给一个柔性高度上限，避免页面无限增长；超过才滚动 */
+.result-grid.scrollable {
+    max-height: min(70vh, 720px);
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .thumb {

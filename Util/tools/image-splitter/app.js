@@ -56,6 +56,7 @@
     const previewModal = $('#previewModal');
     const previewImg = $('#previewImg');
     const previewClose = $('#previewClose');
+    const resultLayout = $('#resultLayout');
 
     // ===== 上传处理 =====
     function loadFile(file) {
@@ -157,10 +158,10 @@
             });
             const cost = ((performance.now() - t0) / 1000).toFixed(2);
 
-            const baseName = getBaseName(state.sourceFile && state.sourceFile.name);
+            // 默认命名：split_0、split_1…（保持简洁，避免长哈希挤占缩略图标题）
             state.splits = results.map((r, i) => ({
                 ...r,
-                name: `${baseName}_split_${i}`,
+                name: `split_${i}`,
                 selected: true
             }));
             renderResults();
@@ -177,12 +178,20 @@
     function renderResults() {
         if (!state.splits.length) {
             resultGrid.innerHTML = '<span class="placeholder">上传图片并点击"开始拆分"…</span>';
+            resultGrid.classList.remove('scrollable');
             resultHeader.hidden = true;
             downloadBtn.disabled = true;
+            // 恢复默认左右布局
+            if (resultLayout) resultLayout.classList.remove('results-many');
             return;
         }
         resultHeader.hidden = false;
         resultCount.textContent = state.splits.length;
+
+        // 结果较多时，结果卡占满整行 + 启用滚动；少量时保持左右双栏
+        const many = state.splits.length > 9;
+        if (resultLayout) resultLayout.classList.toggle('results-many', many);
+        resultGrid.classList.toggle('scrollable', state.splits.length > 24);
 
         const frag = document.createDocumentFragment();
         state.splits.forEach((item, i) => {
@@ -248,9 +257,8 @@
         state.renameTargetIndex = index;
         if (index === -1) {
             renameTitle.textContent = '批量重命名';
-            renameTip.textContent = '将以「前缀_序号」格式重命名所有图片，例如：icon_0、icon_1…';
-            const baseName = getBaseName(state.sourceFile && state.sourceFile.name) || 'image';
-            renameInput.value = `${baseName}_split`;
+            renameTip.textContent = '将以「前缀_序号」格式重命名所有图片，例如：split_0、split_1…';
+            renameInput.value = 'split';
         } else {
             renameTitle.textContent = '重命名';
             renameTip.textContent = '请输入新的文件名（无需 .png 扩展名）';
