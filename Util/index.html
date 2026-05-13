@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Util Toolbox · 实用工具集</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部导航（首页态：只点亮"工具首页"） -->
+        <div id="topnav-mount"></div>
+
+        <!-- Hero -->
+        <section class="hero">
+            <h1 class="hero-title">
+                <span class="hero-emoji">🧰</span>
+                Util Toolbox
+            </h1>
+            <p class="hero-sub">一个 100% 浏览器本地运行的实用工具集合 · 不上传、不联网、不收费</p>
+
+            <div class="hero-search-wrap">
+                <input id="toolSearch" type="text" placeholder="🔍 搜索工具（按名称 / 标签 / 描述）" />
+            </div>
+
+            <div class="hero-tags" id="tagBar"></div>
+        </section>
+
+        <!-- 工具卡片网格 -->
+        <section class="tools-grid" id="toolsGrid"></section>
+
+        <section class="empty-result" id="emptyResult" hidden>
+            <p>没有找到匹配的工具，换个关键词试试？</p>
+        </section>
+
+        <footer class="footer">
+            <p>Made with ❤ · 全部工具均在你的浏览器本地运行，文件不会上传任何服务器。</p>
+        </footer>
+    </div>
+
+    <script src="tools.config.js"></script>
+    <script src="shared.js"></script>
+    <script src="components/topnav.js"></script>
+    <script src="home.js"></script>
+</body>
+</html>
