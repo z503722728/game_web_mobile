@@ -38,11 +38,11 @@ window.UTIL_TOOLS = [
         id: 'color-keyer',
         name: '纯色抠图',
         icon: '🎭',
-        desc: '基于颜色阈值快速去除纯色背景，导出透明 PNG。',
-        tags: ['图像', '抠图'],
+        desc: '取色器一键吸色 + 容差去背景，再用橡皮擦精修边缘，导出透明 PNG。',
+        tags: ['图像', '抠图', '透明'],
         path: 'tools/color-keyer/index.html',
         accent: '#ffb547',
-        status: 'planned'
+        status: 'ready'
     },
     {
         id: 'ai-matting',

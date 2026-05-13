@@ -1,0 +1,255 @@
+/* ============================================================
+ * 纯色抠图子页面专属样式
+ * （通用样式继承自 ../../style.css）
+ * ============================================================ */
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+@media (max-width: 980px) {
+    .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ============== 上传区 ============== */
+.upload-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-dim);
+    padding: 24px;
+}
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(122, 92, 255, 0.08);
+    color: var(--text);
+}
+.upload-zone.has-file { min-height: 90px; }
+.upload-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+.upload-icon { font-size: 42px; }
+.upload-zone.has-file .upload-icon { display: none; }
+.upload-zone.has-file .upload-sub { display: none; }
+.upload-text { font-size: 14px; }
+.upload-sub { font-size: 12px; color: var(--text-dim); }
+
+/* ============== 画布舞台 ============== */
+.canvas-stage {
+    position: relative;
+    background:
+        linear-gradient(45deg, #2a2458 25%, transparent 25%),
+        linear-gradient(-45deg, #2a2458 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #2a2458 75%),
+        linear-gradient(-45deg, transparent 75%, #2a2458 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    background-color: #1f1a45;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-height: 280px;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+}
+.canvas-stage canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    cursor: crosshair;
+}
+.canvas-stage[data-mode="pan"] canvas { cursor: grab; }
+.canvas-stage[data-mode="erase"] canvas,
+.canvas-stage[data-mode="restore"] canvas { cursor: none; }
+
+.empty-tip {
+    position: absolute;
+    color: var(--text-dim);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+/* 取色器跟随光标的预览 */
+.picker-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 50;
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+.picker-preview {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #fff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    background: #00ff00;
+}
+
+/* 橡皮擦/恢复笔光标 */
+.brush-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 50;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+}
+
+.file-info {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin: 10px 0 0;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* ============== 结果工具条 ============== */
+.result-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.seg-group {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--border);
+}
+.seg-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.seg-btn:hover { color: var(--text); }
+.seg-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(122, 92, 255, 0.4);
+}
+
+.result-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.link-btn {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.link-btn:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--primary);
+    background: rgba(122, 92, 255, 0.1);
+}
+.link-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ============== 颜色选择 ============== */
+.color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-top: 4px;
+}
+.color-swatch {
+    position: relative;
+    width: 44px;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid var(--border);
+}
+.color-swatch input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0;
+}
+.swatch-fill {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.color-code {
+    color: var(--text);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+/* ============== 设置 ============== */
+.setting-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin: 14px 0 6px;
+}
+.big-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+}
+.free-tag { color: var(--accent); font-weight: 600; margin-left: 4px; }
+
+.action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 18px;
+}
+@media (max-width: 600px) {
+    .action-row { grid-template-columns: 1fr; }
+}
+
+/* ============== 画笔控制 ============== */
+.brush-controls {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}

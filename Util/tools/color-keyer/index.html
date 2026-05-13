@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>纯色抠图 · Util Toolbox</title>
+    <link rel="stylesheet" href="../../style.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部导航 -->
+        <div id="topnav-mount"></div>
+
+        <!-- 上传区 -->
+        <section class="card upload-card">
+            <h2 class="card-title">🖼️ 上传需要抠图的图片（纯色模式）</h2>
+            <div class="divider"></div>
+            <label class="upload-zone" id="uploadZone">
+                <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden />
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text" id="uploadText">点击或拖拽图片到此处上传</div>
+                    <div class="upload-sub">支持 PNG, JPG, JPEG, WEBP 格式</div>
+                </div>
+            </label>
+        </section>
+
+        <!-- 工作区：左原图（取色） + 右结果（橡皮擦） -->
+        <section class="grid-2" id="workArea" hidden>
+            <!-- 原图：可吸色 -->
+            <div class="card">
+                <h2 class="card-title">🎯 原图（点击吸取背景色）</h2>
+                <div class="divider"></div>
+                <div class="canvas-stage" id="srcStage">
+                    <canvas id="srcCanvas"></canvas>
+                    <div class="picker-cursor" id="pickerCursor" hidden>
+                        <div class="picker-preview" id="pickerPreview"></div>
+                    </div>
+                </div>
+                <p class="file-info" id="fileInfo"></p>
+            </div>
+
+            <!-- 结果：可橡皮擦 -->
+            <div class="card">
+                <h2 class="card-title">✨ 抠图结果（可橡皮擦精修）</h2>
+                <div class="divider"></div>
+                <div class="result-toolbar">
+                    <div class="seg-group" id="modeGroup" data-mode="pan">
+                        <button class="seg-btn active" data-mode="pan" title="移动 / 浏览">🖱️ 浏览</button>
+                        <button class="seg-btn" data-mode="erase" title="橡皮擦">🧹 橡皮擦</button>
+                        <button class="seg-btn" data-mode="restore" title="恢复笔（涂回去）">🩹 恢复笔</button>
+                    </div>
+                    <div class="result-actions">
+                        <button class="link-btn" id="undoBtn" title="撤销 (Ctrl+Z)">↶ 撤销</button>
+                        <button class="link-btn" id="redoBtn" title="重做 (Ctrl+Y)">↷ 重做</button>
+                        <button class="link-btn" id="resetBtn" title="重置为初次抠图结果">⟲ 重置</button>
+                    </div>
+                </div>
+                <div class="canvas-stage" id="dstStage">
+                    <canvas id="dstCanvas"></canvas>
+                    <div class="brush-cursor" id="brushCursor" hidden></div>
+                    <div class="empty-tip" id="emptyTip">
+                        点击「开始纯色抠图」生成结果
+                    </div>
+                </div>
+                <div class="brush-controls" id="brushControls" hidden>
+                    <label class="setting-label">画笔大小
+                        <span class="badge" id="brushBadge">30</span>
+                    </label>
+                    <input type="range" id="brushSlider" min="2" max="200" step="1" value="30" />
+
+                    <label class="setting-label">画笔硬度
+                        <span class="badge" id="hardnessBadge">80%</span>
+                    </label>
+                    <input type="range" id="hardnessSlider" min="0" max="100" step="1" value="80" />
+                </div>
+            </div>
+        </section>
+
+        <!-- 抠图参数 -->
+        <section class="card setting-card" id="paramCard" hidden>
+            <h2 class="card-title">⚙️ 抠图参数</h2>
+            <div class="divider"></div>
+
+            <p class="setting-label">背景颜色选择</p>
+            <div class="color-row">
+                <label class="color-swatch">
+                    <input type="color" id="colorPicker" value="#00ff00" />
+                    <span class="swatch-fill" id="swatchFill" style="background:#00ff00"></span>
+                </label>
+                <code class="color-code" id="colorCode">HEX: #00FF00 &nbsp; | &nbsp; RGB: (0, 255, 0)</code>
+                <button class="link-btn" id="eyedropperBtn" title="使用浏览器原生取色器（Chrome 95+）">💧 屏幕取色</button>
+            </div>
+
+            <label class="setting-label">容差阈值 (0 - 150)
+                <span class="badge" id="toleranceBadge">30</span>
+            </label>
+            <input type="range" id="toleranceSlider" min="0" max="150" step="1" value="30" />
+
+            <div class="tip-block">
+                <strong>💡 调节建议：</strong> 容差决定了背景颜色的过滤强度，数值越大，背景去除得越干净（但可能误伤主体边缘）。<b>推荐数值为 30 - 60</b>。
+            </div>
+
+            <label class="setting-label">边缘羽化（柔化半径，0 - 5 px）
+                <span class="badge" id="featherBadge">1</span>
+            </label>
+            <input type="range" id="featherSlider" min="0" max="5" step="1" value="1" />
+
+            <p class="setting-label">后处理选项</p>
+            <label class="checkbox">
+                <input type="checkbox" id="trimChk" />
+                <span>自动切除多余透明区域</span>
+            </label>
+            <label class="checkbox">
+                <input type="checkbox" id="despillChk" checked />
+                <span>抑制颜色溢出（去除主体边缘的背景反光，对绿幕/蓝幕特别有效）</span>
+            </label>
+
+            <div class="action-row">
+                <button class="btn-primary big-btn" id="keyBtn" disabled>
+                    ✂️ 开始纯色抠图 <span class="free-tag">(免费)</span>
+                </button>
+                <button class="btn-primary big-btn download-btn" id="downloadBtn" disabled>
+                    💾 下载 PNG
+                </button>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Color Keyer · 纯前端实现，所有处理均在你的浏览器本地完成，图片不会上传到任何服务器。</p>
+        </footer>
+    </div>
+
+    <!-- 共享脚本 -->
+    <script src="../../tools.config.js"></script>
+    <script src="../../shared.js"></script>
+    <script src="../../components/topnav.js"></script>
+
+    <!-- 业务脚本 -->
+    <script src="keyer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
